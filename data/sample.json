@@ -1,0 +1,98 @@
+{
+  "lessonName": "sample",
+
+  "questionSets": [
+    {
+      "passage": "The conference was delayed because of severe weather.",
+
+      "questions": [
+        {
+          "question": "Why was the event postponed?",
+
+          "choices": {
+            "A": {
+              "text": "There were not enough attendees.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "severe weather" }
+              ]
+            },
+
+            "B": {
+              "text": "Bad weather caused a delay.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "because of" },
+                { "source": "question", "text": "Why" }
+              ]
+            }
+          },
+
+          "correct": "B"
+        },
+
+        {
+          "question": "What caused the delay?",
+
+          "choices": {
+            "A": {
+              "text": "The weather.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "severe weather" }
+              ]
+            },
+
+            "B": {
+              "text": "The number of attendees.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "severe weather" }
+              ]
+            }
+          },
+
+          "correct": "A"
+        }
+      ]
+    },
+
+    {
+      "passage": "Mr. Lee will arrive at the office on Thursday morning to meet with the sales team.",
+
+      "questions": [
+        {
+          "question": "When will Mr. Lee arrive?",
+
+          "choices": {
+            "A": {
+              "text": "Wednesday morning."
+            },
+
+            "B": {
+              "text": "Thursday morning."
+            }
+          },
+
+          "correct": "B"
+        },
+
+        {
+          "question": "Who will Mr. Lee meet with?",
+
+          "choices": {
+            "A": {
+              "text": "The sales team."
+            },
+
+            "B": {
+              "text": "The accounting team."
+            }
+          },
+
+          "correct": "A"
+        }
+      ]
+    }
+  ]
+}

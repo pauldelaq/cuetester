@@ -59,7 +59,7 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  height: var(--app-header-height);
+  height: 60px;
   z-index: 1010; /* Higher than settings menu */
   border-bottom: 1px solid #ccc;
   flex-shrink: 0;

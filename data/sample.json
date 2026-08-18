@@ -58,23 +58,54 @@
     },
 
     {
-      "passage": "Mr. Lee will arrive at the office on Thursday morning to meet with the sales team.",
 
       "questions": [
         {
-          "question": "When will Mr. Lee arrive?",
+          "question": "After examining the negative reviews of his business, the manager felt ------- .",
 
           "choices": {
             "A": {
-              "text": "Wednesday morning."
+              "text": "frustrating",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "question", "text": "felt"},
+                { "source": "choice", "choice": "A", "text": "ing"}
+              ]
             },
 
             "B": {
-              "text": "Thursday morning."
+              "text": "frustrate",
+              "feedbackType": "identify-pos",
+              "targets": [
+                { "source": "question", "text": "manager", "pos": "n." },
+                { "source": "question", "text": "felt", "pos": "v." },
+                { "source": "choice", "choice": "B", "text": "frustrate", "pos": "v." }
+              ]
+
+            },
+
+            "C": {
+              "text": "frustrates",
+              "feedbackType": "identify-pos",
+              "targets": [
+                { "source": "question", "text": "manager", "pos": "n." },
+                { "source": "question", "text": "felt", "pos": "v." },
+                { "source": "choice", "choice": "C", "text": "frustrates", "pos": "v." }
+              ]
+            },
+
+            "D": {
+              "text": "frustrated",
+              "feedbackType": "identify-pos",
+              "targets": [
+                { "source": "question", "text": "manager", "pos": "n." },
+                { "source": "question", "text": "felt", "pos": "v." },
+                { "source": "choice", "choice": "D", "text": "frustrated", "pos": "adj." }
+              ]
             }
           },
 
-          "correct": "B"
+          "correct": "D"
         },
 
         {

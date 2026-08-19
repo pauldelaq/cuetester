@@ -3,27 +3,95 @@
 
   "questionSets": [
     {
-      "passage": "The conference was delayed because of severe weather.",
+      "passage": "<div class=\"email-header\">To: Department Managers<br>From: Elena Park<br>Subject: Customer Service Workshop</div><p>To all department managers:</p><p>Next month, we will be holding a customer service workshop for <span class=\"passage-blank\"></span> hired employees. The session will focus on responding to customer complaints and resolving common service problems. Experienced managers are encouraged to attend and share examples from their own departments.</p><p>The workshop will be held on September 18 in Conference Room B. Please let us know by September 10 if you plan to participate. <span class=\"passage-blank\"></span></p><p>Thank you for your cooperation.</p><div class=\"email-signature\">Elena Park<br>Human Resources</div>",
 
       "questions": [
         {
-          "question": "Why was the event postponed?",
+          "question": "",
 
           "choices": {
             "A": {
-              "text": "There were not enough attendees.",
-              "feedbackType": "highlight",
+              "text": "recent",
+              "feedbackType": "annotation",
               "targets": [
-                { "source": "passage", "text": "severe weather" }
+                { "source": "choice", "choice": "A", "text": "recent", "annotation": "adj." },
+                { "source": "passage", "text": "hired", "annotation": "adj." }
               ]
             },
 
             "B": {
-              "text": "Bad weather caused a delay.",
+              "text": "recently",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "B", "text": "recently", "annotation": "adv." },
+                { "source": "passage", "text": "hired", "annotation": "adj." },
+                { "source": "passage", "text": "employees", "annotation": "n." }
+              ]
+            },
+
+            "C": {
+              "text": "recency",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "C", "text": "recency", "annotation": "n." },
+                { "source": "passage", "text": "hired", "annotation": "adj." }
+              ]
+            },
+
+            "D": {
+              "text": "recentness",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "D", "text": "recentness", "annotation": "n." },
+                { "source": "passage", "text": "hired", "annotation": "adj." }
+              ]
+            }
+          },
+
+          "correct": "B",
+          "prove": {
+            "type": "choice",
+            "prompt": "Which part of speech should be used?",
+            "options": ["n.", "v.", "adj.", "adv."],
+            "correct": "adv."
+          }
+
+        },
+
+        {
+          "question": "",
+
+          "choices": {
+            "A": {
+              "text": "The conference room is currently being renovated.",
               "feedbackType": "highlight",
               "targets": [
-                { "source": "passage", "text": "because of" },
-                { "source": "question", "text": "Why" }
+                { "source": "passage", "text": "Conference Room B" }
+              ]
+            },
+
+            "B": {
+              "text": "We appreciate your help in making the workshop useful for our new employees.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "hired employees" },
+                { "source": "passage", "text": "Experienced managers are encouraged to attend and share examples" }
+              ]
+            },
+
+            "C": {
+              "text": "Customer complaints have increased significantly this year.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "responding to customer complaints" }
+              ]
+            },
+
+            "D": {
+              "text": "The September meeting has been canceled.",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "passage", "text": "The workshop will be held on September 18" }
               ]
             }
           },
@@ -32,7 +100,6 @@
         }
       ]
     },
-
     {
 
       "questions": [
@@ -101,46 +168,48 @@
           "choices": {
             "A": {
               "text": "despite",
-              "feedbackType": "highlight",
+              "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "felt"},
-                { "source": "choice", "choice": "A", "text": "ing"}
+                { "source": "choice", "choice": "A", "text": "despite", "annotation": "+ v.ing"}
               ]
             },
 
             "B": {
-              "text": "frustrate",
+              "text": "during",
               "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "manager", "annotation": "n." },
-                { "source": "question", "text": "felt", "annotation": "v." },
-                { "source": "choice", "choice": "B", "text": "frustrate", "annotation": "v." }
+                { "source": "choice", "choice": "B", "text": "during", "annotation": "+ noun phrase"}
               ]
 
             },
 
             "C": {
-              "text": "frustrates",
+              "text": "since",
               "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "manager", "annotation": "n." },
-                { "source": "question", "text": "felt", "annotation": "v." },
-                { "source": "choice", "choice": "C", "text": "frustrates", "annotation": "v." }
+                { "source": "question", "text": "has received", "annotation": "" },
+                { "source": "question", "text": "two years ago", "annotation": "" },
+                { "source": "choice", "choice": "C", "text": "since", "annotation": "from the time" }
               ]
             },
 
             "D": {
-              "text": "frustrated",
+              "text": "expect",
               "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "manager", "annotation": "n." },
-                { "source": "question", "text": "felt", "annotation": "v." },
-                { "source": "choice", "choice": "D", "text": "frustrated", "annotation": "adj." }
+                { "source": "choice", "choice": "D", "text": "expect", "annotation": "hope to (v.)" }
               ]
             }
           },
 
-          "correct": "D"
+          "correct": "C",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which phrase is closest in meaning to \"since\"?",
+            "options": ["because", "from the time", "before", "even though"],
+            "correct": "from the time"
+          }
         }
 
       ]

@@ -3,12 +3,16 @@ let questions = [];
 let questionIndex = 0;
 let questionStates = [];
 let activeFeedbackCleanup = null;
+let basePassageHtml = '';
 
 function applyFeedback(choice, question) {
+
   if (activeFeedbackCleanup) {
     activeFeedbackCleanup();
     activeFeedbackCleanup = null;
   }
+
+  restoreBasePassageHtml();
 
   switch (choice.feedbackType) {
     case 'highlight':
@@ -47,11 +51,46 @@ function applyAnnotationFeedback(targets) {
   const groupedTargets = new Map();
 
   targets.forEach(target => {
+
+    // Passage targets need to preserve the existing formatted HTML.
+    if (target.source === 'passage') {
+      const annotationTarget = wrapPassageText(target.text, match => {
+        const hasAnnotation = target.annotation !== '';
+
+        const wrapper = document.createElement('span');
+
+        wrapper.className = hasAnnotation
+          ? 'annotation-target'
+          : 'annotation-target annotation-highlight-only';
+
+        const word = document.createElement('span');
+        word.className = 'annotation-word';
+        word.textContent = match;
+
+        wrapper.appendChild(word);
+
+        if (hasAnnotation) {
+          const label = document.createElement('span');
+          label.className = 'annotation-label';
+          label.textContent = target.annotation;
+
+          wrapper.appendChild(label);
+        }
+
+        return wrapper;
+      });
+
+      if (annotationTarget) {
+        createdAnnotationTargets.push(annotationTarget);
+      }
+
+      return;
+    }
+
+    // Question and choice targets can continue using the existing logic.
     let sourceElement;
 
-    if (target.source === 'passage') {
-      sourceElement = document.querySelector('.passage');
-    } else if (target.source === 'question') {
+    if (target.source === 'question') {
       sourceElement = document.querySelector('.question-text');
     } else if (target.source === 'choice') {
       sourceElement = document.querySelector(
@@ -81,24 +120,40 @@ function applyAnnotationFeedback(targets) {
 
     targetsWithPositions.forEach(target => {
       const before = html.slice(0, target.index);
+
       const match = html.slice(
         target.index,
         target.index + target.text.length
       );
-      const after = html.slice(target.index + target.text.length);
+
+      const after = html.slice(
+        target.index + target.text.length
+      );
+
+      const hasAnnotation = target.annotation !== '';
+
+      const annotationLabel = hasAnnotation
+        ? `<span class="annotation-label">${target.annotation}</span>`
+        : '';
+
+      const targetClass = hasAnnotation
+        ? 'annotation-target'
+        : 'annotation-target annotation-highlight-only';
 
       html =
-        `${before}<span class="annotation-target">` +
+        `${before}<span class="${targetClass}">` +
           `<span class="annotation-word">${match}</span>` +
-          `<span class="annotation-label">${target.annotation}</span>` +
+          annotationLabel +
         `</span>${after}`;
     });
 
     sourceElement.innerHTML = html;
 
-    sourceElement.querySelectorAll('.annotation-target').forEach(annotationTarget => {
-      createdAnnotationTargets.push(annotationTarget);
-    });
+    sourceElement
+      .querySelectorAll('.annotation-target')
+      .forEach(annotationTarget => {
+        createdAnnotationTargets.push(annotationTarget);
+      });
   });
 
   return () => {
@@ -114,15 +169,66 @@ function applyAnnotationFeedback(targets) {
   };
 }
 
+function wrapPassageText(targetText, createWrapper) {
+  const passageElement = document.querySelector('.passage');
+  if (!passageElement) return null;
+  const walker = document.createTreeWalker(
+    passageElement,
+    NodeFilter.SHOW_TEXT
+  );
+
+  let textNode;
+
+  while ((textNode = walker.nextNode())) {
+    const startIndex = textNode.textContent.indexOf(targetText);
+    if (startIndex === -1) continue;
+    const before = textNode.textContent.slice(0, startIndex);
+    const match = textNode.textContent.slice(
+      startIndex,
+      startIndex + targetText.length
+    );
+    const after = textNode.textContent.slice(
+      startIndex + targetText.length
+    );
+    const wrapper = createWrapper(match);
+    const fragment = document.createDocumentFragment();
+    if (before) {
+      fragment.appendChild(document.createTextNode(before));
+    }
+    fragment.appendChild(wrapper);
+    if (after) {
+      fragment.appendChild(document.createTextNode(after));
+    }
+    textNode.replaceWith(fragment);
+    return wrapper;
+  }
+
+  return null;
+}
+
 function applyHighlightFeedback(targets) {
   const createdHighlights = [];
 
   targets.forEach(target => {
-    let sourceElement;
 
     if (target.source === 'passage') {
-      sourceElement = document.querySelector('.passage');
-    } else if (target.source === 'question') {
+      const highlight = wrapPassageText(target.text, match => {
+        const span = document.createElement('span');
+        span.className = 'feedback-highlight';
+        span.textContent = match;
+        return span;
+      });
+
+      if (highlight) {
+        createdHighlights.push(highlight);
+      }
+
+      return;
+    }
+
+    let sourceElement;
+
+    if (target.source === 'question') {
       sourceElement = document.querySelector('.question-text');
     } else if (target.source === 'choice') {
       sourceElement = document.querySelector(
@@ -138,13 +244,17 @@ function applyHighlightFeedback(targets) {
     if (startIndex === -1) return;
 
     const before = text.slice(0, startIndex);
-    const match = text.slice(startIndex, startIndex + target.text.length);
+    const match = text.slice(
+      startIndex,
+      startIndex + target.text.length
+    );
     const after = text.slice(startIndex + target.text.length);
 
     sourceElement.innerHTML =
       `${before}<span class="feedback-highlight">${match}</span>${after}`;
 
-    const highlight = sourceElement.querySelector('.feedback-highlight');
+    const highlight =
+      sourceElement.querySelector('.feedback-highlight');
 
     if (highlight) {
       createdHighlights.push(highlight);
@@ -165,12 +275,18 @@ async function loadCueContent() {
     const response = await fetch('data/sample.json');
     cueData = await response.json();
 
-    questions = cueData.questionSets.flatMap(set =>
-      set.questions.map(question => ({
+    let runningQuestionNumber = 1;
+
+    questions = cueData.questionSets.flatMap(set => {
+      const setStartNumber = runningQuestionNumber;
+      runningQuestionNumber += set.questions.length;
+
+      return set.questions.map(question => ({
         ...question,
-        passage: set.passage
-      }))
-    );
+        passage: set.passage,
+        setStartNumber
+      }));
+    });
 
     questionStates = questions.map(() => ({
       correctAnswered: false,
@@ -234,6 +350,40 @@ function restoreSolvedState(state, question) {
   updateChoiceStates(state, question, question.correct);
 }
 
+function renderPassageBlanks(question) {
+  const passageElement = document.querySelector('.passage');
+
+  if (!passageElement) return;
+
+  passageElement
+    .querySelectorAll('.passage-blank')
+    .forEach((blank, blankIndex) => {
+      const questionNumber =
+        question.setStartNumber + blankIndex;
+
+      blank.innerHTML = `
+        <span class="passage-blank-line">-------</span>
+        <span class="passage-blank-number">${questionNumber}.</span>
+      `;
+    });
+}
+
+function storeBasePassageHtml() {
+  const passageElement = document.querySelector('.passage');
+
+  basePassageHtml = passageElement
+    ? passageElement.innerHTML
+    : '';
+}
+
+function restoreBasePassageHtml() {
+  const passageElement = document.querySelector('.passage');
+
+  if (passageElement && basePassageHtml) {
+    passageElement.innerHTML = basePassageHtml;
+  }
+}
+
 function displayQuestion(index) {
   questionIndex = index;
 
@@ -242,10 +392,10 @@ function displayQuestion(index) {
   const state = questionStates[index];
 
   cueContent.innerHTML = `
-    ${question.passage ? `<p class="passage">${question.passage}</p>` : ''}
+    ${question.passage ? `<div class="passage">${question.passage}</div>` : ''}
 
-      <table class="question-and-choices">
-          <tr>
+      <table class="question-and-choices ${question.question ? '' : 'no-question-text'}">
+        <tr>
           <td class="left-cell">
             <span class="question-number">${index + 1}. </span>
           </td>
@@ -290,6 +440,9 @@ function displayQuestion(index) {
         ` : ''}
       </div>
     `;
+
+  renderPassageBlanks(question);
+  storeBasePassageHtml();
 
   restoreSolvedState(state, question);
   updateNavigation();

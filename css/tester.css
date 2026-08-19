@@ -38,6 +38,7 @@
 
 .choice-text {
   flex: 1;
+  letter-spacing: 1px;
 }
 
 .question-number {
@@ -46,6 +47,10 @@
 
 .question-and-choices {
   table-layout: fixed;
+}
+
+.question-and-choices.no-question-text .choices {
+  transform: translateY(-2.3em);
 }
 
 .left-cell {
@@ -63,7 +68,7 @@
 }
 
 .passage {
-  padding-bottom: 1em;
+  padding-bottom: 2em;
   margin: 0;
 }
 
@@ -142,6 +147,12 @@
   animation: annotation-space-in 0.5s ease-out;
 }
 
+.annotation-target.annotation-highlight-only {
+  padding-bottom: 0;
+  animation: none;
+  line-height: inherit;
+}
+
 @keyframes annotation-space-in {
   from {
     padding-bottom: 0;
@@ -154,9 +165,8 @@
 
 .annotation-label {
   position: absolute;
-  left: 50%;
+  left: 0%;
   bottom: 0;
-  transform: translateX(-50%);
   line-height: 1;
   white-space: nowrap;
   font-weight: bold;
@@ -167,12 +177,12 @@
 @keyframes annotation-label-in {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(-0.2em);
+    transform: translateY(-0.2em);
   }
 
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 }
 
@@ -181,7 +191,7 @@
 }
 
 .prove-area {
-  padding: 2em 1em 1em 1em;
+  padding: 2em 1em 4em 1em;
 }
 
 .prove-area.hidden {
@@ -230,4 +240,30 @@
 
 .prove-option:disabled {
   pointer-events: none;
+}
+
+.email-header {
+  margin-bottom: 1.5em;
+}
+
+.passage p {
+  margin: 0 0 1.5em;
+  line-height: 2;
+}
+
+.email-signature {
+  margin-top: 2em;
+}
+
+.passage-blank {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: text-top;
+  line-height: 1;
+}
+
+.passage-blank-number {
+  font-weight: bold;
+  line-height: 0.5;
 }

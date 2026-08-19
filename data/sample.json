@@ -29,30 +29,6 @@
           },
 
           "correct": "B"
-        },
-
-        {
-          "question": "What caused the delay?",
-
-          "choices": {
-            "A": {
-              "text": "The weather.",
-              "feedbackType": "highlight",
-              "targets": [
-                { "source": "passage", "text": "severe weather" }
-              ]
-            },
-
-            "B": {
-              "text": "The number of attendees.",
-              "feedbackType": "highlight",
-              "targets": [
-                { "source": "passage", "text": "severe weather" }
-              ]
-            }
-          },
-
-          "correct": "A"
         }
       ]
     },
@@ -75,54 +51,98 @@
 
             "B": {
               "text": "frustrate",
-              "feedbackType": "identify-pos",
+              "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "manager", "pos": "n." },
-                { "source": "question", "text": "felt", "pos": "v." },
-                { "source": "choice", "choice": "B", "text": "frustrate", "pos": "v." }
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "B", "text": "frustrate", "annotation": "v." }
               ]
 
             },
 
             "C": {
               "text": "frustrates",
-              "feedbackType": "identify-pos",
+              "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "manager", "pos": "n." },
-                { "source": "question", "text": "felt", "pos": "v." },
-                { "source": "choice", "choice": "C", "text": "frustrates", "pos": "v." }
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "C", "text": "frustrates", "annotation": "v." }
               ]
             },
 
             "D": {
               "text": "frustrated",
-              "feedbackType": "identify-pos",
+              "feedbackType": "annotation",
               "targets": [
-                { "source": "question", "text": "manager", "pos": "n." },
-                { "source": "question", "text": "felt", "pos": "v." },
-                { "source": "choice", "choice": "D", "text": "frustrated", "pos": "adj." }
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "D", "text": "frustrated", "annotation": "adj." }
+              ]
+            }
+          },
+
+          "correct": "D",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which part of speech should be used?",
+            "options": ["n.", "v.", "adj.", "adv."],
+            "correct": "adj."
+          }
+        }
+      ]
+    },
+        {
+
+      "questions": [
+        {
+          "question": "Mr. Thomas has received two promotions ------- he joined the company two years ago.",
+
+          "choices": {
+            "A": {
+              "text": "despite",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "question", "text": "felt"},
+                { "source": "choice", "choice": "A", "text": "ing"}
+              ]
+            },
+
+            "B": {
+              "text": "frustrate",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "B", "text": "frustrate", "annotation": "v." }
+              ]
+
+            },
+
+            "C": {
+              "text": "frustrates",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "C", "text": "frustrates", "annotation": "v." }
+              ]
+            },
+
+            "D": {
+              "text": "frustrated",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "D", "text": "frustrated", "annotation": "adj." }
               ]
             }
           },
 
           "correct": "D"
-        },
-
-        {
-          "question": "Who will Mr. Lee meet with?",
-
-          "choices": {
-            "A": {
-              "text": "The sales team."
-            },
-
-            "B": {
-              "text": "The accounting team."
-            }
-          },
-
-          "correct": "A"
         }
+
       ]
     }
   ]

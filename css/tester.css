@@ -63,7 +63,8 @@
 }
 
 .passage {
-  padding-bottom: 0.5em;
+  padding-bottom: 1em;
+  margin: 0;
 }
 
 .feedback-area {
@@ -134,14 +135,14 @@
   text-decoration: line-through;
 }
 
-.pos-target {
+.annotation-target {
   position: relative;
   display: inline-block;
   padding-bottom: 1em;
-  animation: pos-space-in 0.5s ease-out;
+  animation: annotation-space-in 0.5s ease-out;
 }
 
-@keyframes pos-space-in {
+@keyframes annotation-space-in {
   from {
     padding-bottom: 0;
   }
@@ -151,7 +152,7 @@
   }
 }
 
-.pos-label {
+.annotation-label {
   position: absolute;
   left: 50%;
   bottom: 0;
@@ -160,10 +161,10 @@
   white-space: nowrap;
   font-weight: bold;
 
-  animation: pos-label-in 0.5s ease-out;
+  animation: annotation-label-in 0.5s ease-out;
 }
 
-@keyframes pos-label-in {
+@keyframes annotation-label-in {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(-0.2em);
@@ -175,6 +176,58 @@
   }
 }
 
-.pos-word {
+.annotation-word {
   background-color: yellow;
+}
+
+.prove-area {
+  padding: 2em 1em 1em 1em;
+}
+
+.prove-area.hidden {
+  display: none;
+}
+
+.prove-title {
+  padding-bottom: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.prove-options {
+  padding-top: 1em;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: auto auto;
+}
+
+.prove-option {
+  background: none;
+  border: solid 1px;
+  border-radius: 5px;
+  font-size: inherit;
+  min-width: 50px;
+}
+
+.prove-option:hover {
+  background: #ffffff;
+}
+
+.prove-option:active {
+  transform: scale(0.99);
+}
+
+.prove-option.correct {
+  border-color: green;
+  background: #ffffff;
+}
+
+.prove-option.incorrect {
+  opacity: 0.35;
+  border-color: #999;
+  cursor: not-allowed;
+}
+
+.prove-option:disabled {
+  pointer-events: none;
 }

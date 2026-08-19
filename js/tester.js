@@ -15,8 +15,8 @@ function applyFeedback(choice, question) {
       activeFeedbackCleanup = applyHighlightFeedback(choice.targets);
       break;
 
-    case 'identify-pos':
-      activeFeedbackCleanup = applyIdentifyPosFeedback(choice.targets);
+    case 'annotation':
+      activeFeedbackCleanup = applyAnnotationFeedback(choice.targets);
       break;
 
     default:
@@ -24,8 +24,26 @@ function applyFeedback(choice, question) {
   }
 }
 
-function applyIdentifyPosFeedback(targets) {
-  const createdPosTargets = [];
+function applyCorrectAnswerFeedback(question, includeChoiceTargets = true) {
+  const correctChoice = question.choices[question.correct];
+
+  if (includeChoiceTargets) {
+    applyFeedback(correctChoice, question);
+    return;
+  }
+
+  const filteredChoice = {
+    ...correctChoice,
+    targets: correctChoice.targets.filter(
+      target => target.source !== 'choice'
+    )
+  };
+
+  applyFeedback(filteredChoice, question);
+}
+
+function applyAnnotationFeedback(targets) {
+  const createdAnnotationTargets = [];
   const groupedTargets = new Map();
 
   targets.forEach(target => {
@@ -70,28 +88,28 @@ function applyIdentifyPosFeedback(targets) {
       const after = html.slice(target.index + target.text.length);
 
       html =
-        `${before}<span class="pos-target">` +
-          `<span class="pos-word">${match}</span>` +
-          `<span class="pos-label">${target.pos}</span>` +
+        `${before}<span class="annotation-target">` +
+          `<span class="annotation-word">${match}</span>` +
+          `<span class="annotation-label">${target.annotation}</span>` +
         `</span>${after}`;
     });
 
     sourceElement.innerHTML = html;
 
-    sourceElement.querySelectorAll('.pos-target').forEach(posTarget => {
-      createdPosTargets.push(posTarget);
+    sourceElement.querySelectorAll('.annotation-target').forEach(annotationTarget => {
+      createdAnnotationTargets.push(annotationTarget);
     });
   });
 
   return () => {
-    createdPosTargets.forEach(posTarget => {
-      if (!posTarget.isConnected) return;
+    createdAnnotationTargets.forEach(annotationTarget => {
+      if (!annotationTarget.isConnected) return;
 
       const word =
-        posTarget.querySelector('.pos-word')?.textContent ??
-        posTarget.textContent;
+        annotationTarget.querySelector('.annotation-word')?.textContent ??
+        annotationTarget.textContent;
 
-      posTarget.replaceWith(word);
+      annotationTarget.replaceWith(word);
     });
   };
 }
@@ -155,6 +173,8 @@ async function loadCueContent() {
     );
 
     questionStates = questions.map(() => ({
+      correctAnswered: false,
+      proveSolved: false,
       solved: false,
       attemptedChoices: []
     }));
@@ -193,7 +213,7 @@ function updateChoiceStates(state, question, activeChoice = null) {
 
     button.classList.toggle(
       'eliminated',
-      state.solved && wasAttempted && isIncorrect && !isActive
+      wasAttempted && isIncorrect && !isActive
     );
   });
 }
@@ -221,37 +241,55 @@ function displayQuestion(index) {
   const question = questions[index];
   const state = questionStates[index];
 
-cueContent.innerHTML = `
-  ${question.passage ? `<p class="passage">${question.passage}</p>` : ''}
+  cueContent.innerHTML = `
+    ${question.passage ? `<p class="passage">${question.passage}</p>` : ''}
 
-    <table class="question-and-choices">
+      <table class="question-and-choices">
+          <tr>
+          <td class="left-cell">
+            <span class="question-number">${index + 1}. </span>
+          </td>
+
+          <td class="right-cell">
+            <span class="question-text">${question.question}</span>
+          </td>
+        </tr>
+
         <tr>
-        <td class="left-cell">
-          <span class="question-number">${index + 1}. </span>
-        </td>
+          <td class="answer-cell"><span class="feedback-area"></span>
+          </td>
 
-        <td class="right-cell">
-          <span class="question-text">${question.question}</span>
-        </td>
-      </tr>
+          <td class="right-cell">
+            <div class="choices">
+              ${Object.entries(question.choices).map(([letter, choice]) => `
+                <button class="choice" data-choice="${letter}">
+                  <span class="choice-letter">(${letter})&nbsp</span>
+                  <span class="choice-text">${choice.text}</span>
+                </button>
+              `).join('')}
+            </div>
+          </td>
+        </tr>
+      </table>
 
-      <tr>
-        <td class="answer-cell"><span class="feedback-area"></span>
-        </td>
+      <div class="prove-area ${question.prove ? 'hidden' : ''}">
+        ${question.prove ? `
+          <div class="prove-title">Prove it!</div>
+          <div class="prove-prompt">${question.prove.prompt}</div>
 
-        <td class="right-cell">
-          <div class="choices">
-            ${Object.entries(question.choices).map(([letter, choice]) => `
-              <button class="choice" data-choice="${letter}">
-                <span class="choice-letter">(${letter})&nbsp</span>
-                <span class="choice-text">${choice.text}</span>
+          <div class="prove-options">
+            ${question.prove.options.map(option => `
+              <button
+                class="prove-option"
+                data-prove-option="${option}"
+              >
+                ${option}
               </button>
             `).join('')}
           </div>
-        </td>
-      </tr>
-    </table>
-  `;
+        ` : ''}
+      </div>
+    `;
 
   restoreSolvedState(state, question);
   updateNavigation();
@@ -268,21 +306,67 @@ cueContent.innerHTML = `
 
       button.classList.add('selected');
 
-    if (!state.solved && !state.attemptedChoices.includes(selectedChoice)) {
+    if (
+      !state.correctAnswered &&
+      !state.attemptedChoices.includes(selectedChoice)
+    ) {
       state.attemptedChoices.push(selectedChoice);
     }
 
     if (selectedChoice === question.correct) {
       feedbackArea.textContent = '✓';
-      state.solved = true;
-      updateNavigation();
+      state.correctAnswered = true;
+
+      if (question.prove && !state.proveSolved) {
+        state.solved = false;
+
+        document.querySelector('.prove-area')?.classList.remove('hidden');
+
+        applyCorrectAnswerFeedback(question, false);
+      } else {
+        state.solved = true;
+
+        applyCorrectAnswerFeedback(question, true);
+        updateNavigation();
+      }
+
     } else {
       feedbackArea.textContent = '✕';
+
+      if (question.prove && !state.proveSolved) {
+        document.querySelector('.prove-area')?.classList.add('hidden');
+      }
+
+      applyFeedback(choice, question);
     }
 
     updateChoiceStates(state, question, selectedChoice);
-    applyFeedback(choice, question);
       });
+    });
+
+      document.querySelectorAll('.prove-option').forEach(button => {
+        button.addEventListener('click', () => {
+          const selectedOption = button.dataset.proveOption;
+
+          document.querySelectorAll('.prove-option').forEach(optionButton => {
+            optionButton.classList.remove('correct', 'incorrect');
+          });
+
+          if (selectedOption === question.prove.correct) {
+            button.classList.add('correct');
+            button.disabled = true;
+
+            state.proveSolved = true;
+            state.solved = true;
+
+            applyCorrectAnswerFeedback(question, true);
+
+            updateNavigation();
+          } else {
+            button.classList.add('incorrect');
+            button.disabled = true;
+          }
+        });
     });
   }
 

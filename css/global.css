@@ -46,6 +46,7 @@ main#cue-content {
   flex-direction: column;
   overflow-x: hidden;
   box-sizing: border-box;
+  padding-top: 1em;
 }
 
 header {

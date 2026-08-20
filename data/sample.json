@@ -2,6 +2,152 @@
   "lessonName": "sample",
 
   "questionSets": [
+    
+  {
+    "passage": "<div class=\"chat-transcript\"><div class=\"chat-message\"><div class=\"chat-meta\"><span class=\"chat-name\">MAYA CHEN</span><span class=\"chat-time\">9:42</span></div><div class=\"chat-text\">Did you manage to change your train reservation?</div></div><div class=\"chat-message\"><div class=\"chat-meta\"><span class=\"chat-name\">DANIEL KIM</span><span class=\"chat-time\">9:44</span></div><div class=\"chat-text\">Yes. I found a later train, so I can finish the client presentation before I leave.</div></div><div class=\"chat-message\"><div class=\"chat-meta\"><span class=\"chat-name\">MAYA CHEN</span><span class=\"chat-time\">9:45</span></div><div class=\"chat-text\">Good. Will you still arrive before dinner?</div></div><div class=\"chat-message\"><div class=\"chat-meta\"><span class=\"chat-name\">DANIEL KIM</span><span class=\"chat-time\">9:47</span></div><div class=\"chat-text\">I should. The new train gets in at 6:20. Could you pick me up at the station?</div></div><div class=\"chat-message\"><div class=\"chat-meta\"><span class=\"chat-name\">MAYA CHEN</span><span class=\"chat-time\">9:50</span></div><div class=\"chat-text\">No problem. I'll leave work a little early.</div></div></div>",
+
+    "questions": [
+      {
+        "question": "What is suggested about Mr. Kim?",
+
+        "choices": {
+          "A": {
+            "text": "He is traveling for work.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "I can finish the client presentation before I leave"
+              }
+            ]
+          },
+
+          "B": {
+            "text": "He plans to cancel his trip.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "I found a later train"
+              },
+              {
+                "source": "passage",
+                "text": "Good."
+              }
+
+            ]
+          },
+
+          "C": {
+            "text": "He lives near the train station.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "Could you pick me up at the station?"
+              }
+            ]
+          },
+
+          "D": {
+            "text": "He will arrive in the morning.",
+            "feedbackType": "focus",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "Will you still arrive before dinner?"
+              },
+              {
+                "source": "passage",
+                "text": "I should. The new train gets in at 6:20."
+              },
+              {
+                "source": "passage",
+                "text": "MAYA CHEN",
+                "occurrence": 2
+              },
+              {
+                "source": "passage",
+                "text": "DANIEL KIM",
+                "occurrence": 2
+              }
+
+            ]
+          }
+        },
+
+        "correct": "A",
+
+        "prove": {
+          "type": "find-and-click",
+          "prompt": "Which part of the conversation suggests the answer? Find it and click.",
+          "correct": "I can finish the client presentation before I leave"
+        }
+      },
+
+      {
+        "question": "At 9:50, what does Ms. Chen mean when she writes, \"No problem\"?",
+
+        "choices": {
+          "A": {
+            "text": "She agrees to meet Mr. Kim at the station.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "Could you pick me up at the station?"
+              },
+              {
+                "source": "passage",
+                "text": "No problem"
+              }
+            ]
+          },
+
+          "B": {
+            "text": "She thinks Mr. Kim should take an earlier train.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "I found a later train"
+              }
+            ]
+          },
+
+          "C": {
+            "text": "She will finish the presentation for Mr. Kim.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "finish the client presentation"
+              }
+            ]
+          },
+
+          "D": {
+            "text": "She does not know when Mr. Kim will arrive.",
+            "feedbackType": "highlight",
+            "targets": [
+              {
+                "source": "passage",
+                "text": "gets in at 6:20"
+              }
+            ]
+          }
+        },
+
+        "correct": "A",
+
+        "prove": {
+          "type": "find-and-click",
+          "prompt": "Which earlier message explains what she agrees to do?",
+          "correct": "Could you pick me up at the station?"
+        }
+      }
+    ]
+  },
     {
       "passage": "<div class=\"email-header\">To: Department Managers<br>From: Elena Park<br>Subject: Customer Service Workshop</div><p>To all department managers:</p><p>Next month, we will be holding a customer service workshop for <span class=\"passage-blank\"></span> hired employees. The session will focus on responding to customer complaints and resolving common service problems. Experienced managers are encouraged to attend and share examples from their own departments.</p><p>The workshop will be held on September 18 in Conference Room B. Please let us know by September 10 if you plan to participate. <span class=\"passage-blank\"></span></p><p>Thank you for your cooperation.</p><div class=\"email-signature\">Elena Park<br>Human Resources</div>",
 
@@ -83,7 +229,7 @@
               "text": "Customer complaints have increased significantly this year.",
               "feedbackType": "highlight",
               "targets": [
-                { "source": "passage", "text": "responding to customer complaints" }
+                { "source": "passage", "text": "responding to customer complaints and resolving common service problems" }
               ]
             },
 
@@ -96,7 +242,12 @@
             }
           },
 
-          "correct": "B"
+          "correct": "B",
+          "prove": {
+            "type": "find-and-click",
+            "prompt": "Which part of the passage contains the answer? Find it and click.",
+            "correct": "Experienced managers are encouraged to attend and share examples"
+          }
         }
       ]
     },

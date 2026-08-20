@@ -242,6 +242,8 @@
   pointer-events: none;
 }
 
+/* styles for particular formats of text */
+
 .email-header {
   margin-bottom: 1.5em;
 }
@@ -255,6 +257,15 @@
   margin-top: 2em;
 }
 
+.feedback-blurred {
+  filter: blur(4px);
+  opacity: 0.55;
+}
+
+.focus-target {
+  filter: none;
+}
+
 .passage-blank {
   display: inline-flex;
   flex-direction: column;
@@ -266,4 +277,39 @@
 .passage-blank-number {
   font-weight: bold;
   line-height: 0.5;
+}
+
+.chat-transcript {
+  border: 1px solid #222;
+  background: #fff;
+}
+
+.chat-message {
+  padding: 0.6em 0.8em;
+  border-bottom: 1px dashed #999;
+}
+
+.chat-message:last-child {
+  border-bottom: none;
+}
+
+.chat-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+}
+
+.chat-name {
+  font-weight: 700;
+}
+
+.chat-time {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chat-text {
+  margin-top: 0.1em;
+  line-height: 1.4;
 }

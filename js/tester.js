@@ -23,10 +23,16 @@ function applyFeedback(choice, question) {
       activeFeedbackCleanup = applyAnnotationFeedback(choice.targets);
       break;
 
+    case 'focus':
+      activeFeedbackCleanup = applyFocusFeedback(choice.targets);
+      break;
+
     default:
       console.warn(`Unknown feedback type: ${choice.feedbackType}`);
   }
 }
+
+/// answer feedback types
 
 function applyCorrectAnswerFeedback(question, includeChoiceTargets = true) {
   const correctChoice = question.choices[question.correct];
@@ -169,38 +175,68 @@ function applyAnnotationFeedback(targets) {
   };
 }
 
-function wrapPassageText(targetText, createWrapper) {
+function wrapPassageText(targetText, createWrapper, occurrence = 1) {
   const passageElement = document.querySelector('.passage');
+
   if (!passageElement) return null;
+
   const walker = document.createTreeWalker(
     passageElement,
     NodeFilter.SHOW_TEXT
   );
 
   let textNode;
+  let matchCount = 0;
 
   while ((textNode = walker.nextNode())) {
-    const startIndex = textNode.textContent.indexOf(targetText);
-    if (startIndex === -1) continue;
-    const before = textNode.textContent.slice(0, startIndex);
-    const match = textNode.textContent.slice(
-      startIndex,
-      startIndex + targetText.length
-    );
-    const after = textNode.textContent.slice(
-      startIndex + targetText.length
-    );
-    const wrapper = createWrapper(match);
-    const fragment = document.createDocumentFragment();
-    if (before) {
-      fragment.appendChild(document.createTextNode(before));
+    let searchIndex = 0;
+
+    while (searchIndex < textNode.textContent.length) {
+      const startIndex = textNode.textContent.indexOf(
+        targetText,
+        searchIndex
+      );
+
+      if (startIndex === -1) break;
+
+      matchCount++;
+
+      if (matchCount === occurrence) {
+        const before = textNode.textContent.slice(0, startIndex);
+
+        const match = textNode.textContent.slice(
+          startIndex,
+          startIndex + targetText.length
+        );
+
+        const after = textNode.textContent.slice(
+          startIndex + targetText.length
+        );
+
+        const wrapper = createWrapper(match);
+        const fragment = document.createDocumentFragment();
+
+        if (before) {
+          fragment.appendChild(
+            document.createTextNode(before)
+          );
+        }
+
+        fragment.appendChild(wrapper);
+
+        if (after) {
+          fragment.appendChild(
+            document.createTextNode(after)
+          );
+        }
+
+        textNode.replaceWith(fragment);
+
+        return wrapper;
+      }
+
+      searchIndex = startIndex + targetText.length;
     }
-    fragment.appendChild(wrapper);
-    if (after) {
-      fragment.appendChild(document.createTextNode(after));
-    }
-    textNode.replaceWith(fragment);
-    return wrapper;
   }
 
   return null;
@@ -265,6 +301,80 @@ function applyHighlightFeedback(targets) {
     createdHighlights.forEach(highlight => {
       if (highlight.isConnected) {
         highlight.replaceWith(highlight.textContent);
+      }
+    });
+  };
+}
+
+function applyFocusFeedback(targets) {
+  const passageElement = document.querySelector('.passage');
+
+  if (!passageElement) {
+    return () => {};
+  }
+
+  const createdFocusTargets = [];
+  const createdBlurredTargets = [];
+
+  // First, identify and wrap everything that should remain clear.
+  targets.forEach(target => {
+    if (target.source !== 'passage') return;
+
+    const focusTarget = wrapPassageText(
+      target.text,
+      match => {
+        const span = document.createElement('span');
+        span.className = 'focus-target';
+        span.textContent = match;
+        return span;
+      },
+      target.occurrence ?? 1
+    );
+
+    if (focusTarget) {
+      createdFocusTargets.push(focusTarget);
+    }
+  });
+
+  // Now collect all remaining text nodes in the passage.
+  const walker = document.createTreeWalker(
+    passageElement,
+    NodeFilter.SHOW_TEXT
+  );
+
+  const textNodes = [];
+  let textNode;
+
+  while ((textNode = walker.nextNode())) {
+    textNodes.push(textNode);
+  }
+
+  // Blur every text node that isn't inside one of the focus targets.
+  textNodes.forEach(node => {
+    if (!node.textContent.trim()) return;
+
+    if (node.parentElement?.closest('.focus-target')) {
+      return;
+    }
+
+    const blurred = document.createElement('span');
+    blurred.className = 'feedback-blurred';
+    blurred.textContent = node.textContent;
+
+    node.replaceWith(blurred);
+    createdBlurredTargets.push(blurred);
+  });
+
+  return () => {
+    createdBlurredTargets.forEach(blurred => {
+      if (blurred.isConnected) {
+        blurred.replaceWith(blurred.textContent);
+      }
+    });
+
+    createdFocusTargets.forEach(focusTarget => {
+      if (focusTarget.isConnected) {
+        focusTarget.replaceWith(focusTarget.textContent);
       }
     });
   };
@@ -384,6 +494,115 @@ function restoreBasePassageHtml() {
   }
 }
 
+function showProveActivity(question, state) {
+  if (!question.prove) return;
+
+  switch (question.prove.type) {
+    case 'choice':
+      showChoiceProve(question, state);
+      break;
+
+    case 'find-and-click':
+      showFindAndClickProve(question, state);
+      break;
+
+    default:
+      console.warn(`Unknown prove type: ${question.prove.type}`);
+  }
+}
+
+/// prove types
+
+function showChoiceProve(question, state) {
+  applyCorrectAnswerFeedback(question, false);
+  const proveArea = document.querySelector('.prove-area');
+
+  if (!proveArea) return;
+
+  proveArea.innerHTML = `
+    <div class="prove-title">Prove it!</div>
+    <div class="prove-prompt">${question.prove.prompt}</div>
+
+    <div class="prove-options">
+      ${question.prove.options.map(option => `
+        <button
+          class="prove-option"
+          data-prove-option="${option}"
+        >
+          ${option}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  proveArea.classList.remove('hidden');
+
+  proveArea.querySelectorAll('.prove-option').forEach(button => {
+    button.addEventListener('click', () => {
+      const selectedOption = button.dataset.proveOption;
+
+      proveArea.querySelectorAll('.prove-option').forEach(optionButton => {
+        optionButton.classList.remove('correct', 'incorrect');
+      });
+
+      if (selectedOption === question.prove.correct) {
+        button.classList.add('correct');
+        button.disabled = true;
+
+        state.proveSolved = true;
+        state.solved = true;
+
+        applyCorrectAnswerFeedback(question, true);
+        updateNavigation();
+
+      } else {
+        button.classList.add('incorrect');
+        button.disabled = true;
+      }
+    });
+  });
+}
+
+function showFindAndClickProve(question, state) {
+  const proveArea = document.querySelector('.prove-area');
+
+  if (!proveArea) return;
+
+  proveArea.innerHTML = `
+    <div class="prove-title">Prove it!</div>
+    <div class="prove-prompt">${question.prove.prompt}</div>
+  `;
+
+  proveArea.classList.remove('hidden');
+
+  restoreBasePassageHtml();
+
+  const target = wrapPassageText(question.prove.correct, match => {
+    const span = document.createElement('span');
+    span.className = 'prove-find-target';
+    span.textContent = match;
+    return span;
+  });
+
+  if (!target) {
+    console.warn(
+      `Could not find prove target in passage: ${question.prove.correct}`
+    );
+    return;
+  }
+
+  target.addEventListener('click', () => {
+    if (state.proveSolved) return;
+
+    state.proveSolved = true;
+    state.solved = true;
+
+    applyCorrectAnswerFeedback(question, true);
+    updateChoiceStates(state, question, question.correct);
+    updateNavigation();
+  });
+}
+
 function displayQuestion(index) {
   questionIndex = index;
 
@@ -422,23 +641,7 @@ function displayQuestion(index) {
         </tr>
       </table>
 
-      <div class="prove-area ${question.prove ? 'hidden' : ''}">
-        ${question.prove ? `
-          <div class="prove-title">Prove it!</div>
-          <div class="prove-prompt">${question.prove.prompt}</div>
-
-          <div class="prove-options">
-            ${question.prove.options.map(option => `
-              <button
-                class="prove-option"
-                data-prove-option="${option}"
-              >
-                ${option}
-              </button>
-            `).join('')}
-          </div>
-        ` : ''}
-      </div>
+    <div class="prove-area hidden"></div>
     `;
 
   renderPassageBlanks(question);
@@ -473,11 +676,9 @@ function displayQuestion(index) {
       if (question.prove && !state.proveSolved) {
         state.solved = false;
 
-        document.querySelector('.prove-area')?.classList.remove('hidden');
-
-        applyCorrectAnswerFeedback(question, false);
+        showProveActivity(question, state);
       } else {
-        state.solved = true;
+          state.solved = true;
 
         applyCorrectAnswerFeedback(question, true);
         updateNavigation();
@@ -487,7 +688,12 @@ function displayQuestion(index) {
       feedbackArea.textContent = '✕';
 
       if (question.prove && !state.proveSolved) {
-        document.querySelector('.prove-area')?.classList.add('hidden');
+        const proveArea = document.querySelector('.prove-area');
+
+        if (proveArea) {
+          proveArea.classList.add('hidden');
+          proveArea.innerHTML = '';
+        }
       }
 
       applyFeedback(choice, question);
@@ -495,31 +701,6 @@ function displayQuestion(index) {
 
     updateChoiceStates(state, question, selectedChoice);
       });
-    });
-
-      document.querySelectorAll('.prove-option').forEach(button => {
-        button.addEventListener('click', () => {
-          const selectedOption = button.dataset.proveOption;
-
-          document.querySelectorAll('.prove-option').forEach(optionButton => {
-            optionButton.classList.remove('correct', 'incorrect');
-          });
-
-          if (selectedOption === question.prove.correct) {
-            button.classList.add('correct');
-            button.disabled = true;
-
-            state.proveSolved = true;
-            state.solved = true;
-
-            applyCorrectAnswerFeedback(question, true);
-
-            updateNavigation();
-          } else {
-            button.classList.add('incorrect');
-            button.disabled = true;
-          }
-        });
     });
   }
 

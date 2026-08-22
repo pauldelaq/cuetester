@@ -29,10 +29,6 @@
               {
                 "source": "passage",
                 "text": "I found a later train"
-              },
-              {
-                "source": "passage",
-                "text": "Good."
               }
 
             ]
@@ -99,7 +95,7 @@
               },
               {
                 "source": "passage",
-                "text": "No problem"
+                "text": "No problem."
               }
             ]
           },
@@ -111,7 +107,12 @@
               {
                 "source": "passage",
                 "text": "I found a later train"
+              },
+              {
+                "source": "passage",
+                "text": "Good."
               }
+
             ]
           },
 
@@ -122,7 +123,12 @@
               {
                 "source": "passage",
                 "text": "finish the client presentation"
+              },
+              {
+                "source": "passage",
+                "text": "DANIEL KIM"
               }
+
             ]
           },
 
@@ -132,7 +138,7 @@
             "targets": [
               {
                 "source": "passage",
-                "text": "gets in at 6:20"
+                "text": "The new train gets in at 6:20."
               }
             ]
           }

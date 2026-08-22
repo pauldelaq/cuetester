@@ -387,13 +387,14 @@ async function loadCueContent() {
 
     let runningQuestionNumber = 1;
 
-    questions = cueData.questionSets.flatMap(set => {
+    questions = cueData.questionSets.flatMap((set, setIndex) => {
       const setStartNumber = runningQuestionNumber;
       runningQuestionNumber += set.questions.length;
 
       return set.questions.map(question => ({
         ...question,
         passage: set.passage,
+        setIndex,
         setStartNumber
       }));
     });
@@ -412,10 +413,11 @@ async function loadCueContent() {
   }
 }
 
-function updateNavigation() {
+function updateNavigation(pulseNext = false) {
   const state = questionStates[questionIndex];
   const prevButton = document.getElementById('prevQuestionButton');
   const nextButton = document.getElementById('nextQuestionButton');
+  const nextArrow = document.getElementById('next-arrow');
 
   const showNavigation = state.solved;
 
@@ -428,6 +430,15 @@ function updateNavigation() {
     'hidden',
     !showNavigation || questionIndex === questions.length - 1
   );
+
+  if (nextArrow) {
+    nextArrow.classList.toggle(
+      'next-icon-pulse',
+      pulseNext &&
+      showNavigation &&
+      questionIndex < questions.length - 1
+    );
+  }
 }
 
 function updateChoiceStates(state, question, activeChoice = null) {
@@ -494,16 +505,32 @@ function restoreBasePassageHtml() {
   }
 }
 
+const proveStatus = document.getElementById('prove-status');
+
 function showProveActivity(question, state) {
   if (!question.prove) return;
 
+  const proveArea = document.querySelector('.prove-area');
+  if (!proveArea) return;
+
+  proveArea.innerHTML = `
+    <div class="prove-title">Prove it! <input type="checkbox" id="prove-status"></div>
+    <div class="prove-prompt">${question.prove.prompt}</div>
+    <div class="prove-content"></div>
+  `;
+
+  proveArea.classList.remove('hidden');
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  });
+
   switch (question.prove.type) {
     case 'choice':
-      showChoiceProve(question, state);
+      showChoiceProve(question, state, proveArea);
       break;
 
     case 'find-and-click':
-      showFindAndClickProve(question, state);
+      showFindAndClickProve(question, state, proveArea);
       break;
 
     default:
@@ -513,16 +540,13 @@ function showProveActivity(question, state) {
 
 /// prove types
 
-function showChoiceProve(question, state) {
+function showChoiceProve(question, state, proveArea) {
   applyCorrectAnswerFeedback(question, false);
-  const proveArea = document.querySelector('.prove-area');
 
-  if (!proveArea) return;
+  const proveContent = proveArea.querySelector('.prove-content');
+  if (!proveContent) return;
 
-  proveArea.innerHTML = `
-    <div class="prove-title">Prove it!</div>
-    <div class="prove-prompt">${question.prove.prompt}</div>
-
+  proveContent.innerHTML = `
     <div class="prove-options">
       ${question.prove.options.map(option => `
         <button
@@ -534,8 +558,6 @@ function showChoiceProve(question, state) {
       `).join('')}
     </div>
   `;
-
-  proveArea.classList.remove('hidden');
 
   proveArea.querySelectorAll('.prove-option').forEach(button => {
     button.addEventListener('click', () => {
@@ -553,8 +575,13 @@ function showChoiceProve(question, state) {
         state.solved = true;
 
         applyCorrectAnswerFeedback(question, true);
-        updateNavigation();
+        updateNavigation(true);
 
+        // << Add: Check the prove-status checkbox when solved >>
+        const proveCheckbox = proveArea.querySelector('#prove-status');
+        if (proveCheckbox) {
+          proveCheckbox.checked = true;
+        }
       } else {
         button.classList.add('incorrect');
         button.disabled = true;
@@ -563,18 +590,7 @@ function showChoiceProve(question, state) {
   });
 }
 
-function showFindAndClickProve(question, state) {
-  const proveArea = document.querySelector('.prove-area');
-
-  if (!proveArea) return;
-
-  proveArea.innerHTML = `
-    <div class="prove-title">Prove it!</div>
-    <div class="prove-prompt">${question.prove.prompt}</div>
-  `;
-
-  proveArea.classList.remove('hidden');
-
+function showFindAndClickProve(question, state, proveArea) {
   restoreBasePassageHtml();
 
   const target = wrapPassageText(question.prove.correct, match => {
@@ -599,7 +615,13 @@ function showFindAndClickProve(question, state) {
 
     applyCorrectAnswerFeedback(question, true);
     updateChoiceStates(state, question, question.correct);
-    updateNavigation();
+    updateNavigation(true);
+
+    // << Add: Check the prove-status checkbox when solved >>
+    const proveCheckbox = proveArea.querySelector('#prove-status');
+    if (proveCheckbox) {
+      proveCheckbox.checked = true;
+    }
   });
 }
 
@@ -641,7 +663,7 @@ function displayQuestion(index) {
         </tr>
       </table>
 
-    <div class="prove-area hidden"></div>
+    <div id="prove-area" class="prove-area hidden"></div>
     `;
 
   renderPassageBlanks(question);
@@ -681,7 +703,7 @@ function displayQuestion(index) {
           state.solved = true;
 
         applyCorrectAnswerFeedback(question, true);
-        updateNavigation();
+        updateNavigation(true);
       }
 
     } else {
@@ -706,13 +728,35 @@ function displayQuestion(index) {
 
 document.getElementById('prevQuestionButton').addEventListener('click', () => {
   if (questionIndex > 0) {
-    displayQuestion(questionIndex - 1);
+      const targetIndex = questionIndex - 1;
+
+    const sameSet =
+      questions[questionIndex].setIndex ===
+      questions[targetIndex].setIndex;
+
+    displayQuestion(targetIndex);
+
+    window.scrollTo({
+      top: sameSet ? document.documentElement.scrollHeight : 0,
+      behavior: 'smooth'
+    });
   }
 });
 
 document.getElementById('nextQuestionButton').addEventListener('click', () => {
   if (questionIndex < questions.length - 1) {
-    displayQuestion(questionIndex + 1);
+    const targetIndex = questionIndex + 1;
+
+    const sameSet =
+      questions[questionIndex].setIndex ===
+      questions[targetIndex].setIndex;
+
+    displayQuestion(targetIndex);
+
+    window.scrollTo({
+      top: sameSet ? document.documentElement.scrollHeight : 0,
+      behavior: 'smooth'
+    });
   }
 });
 
@@ -743,3 +787,4 @@ document.querySelectorAll('.circle-btn').forEach(button => {
   button.addEventListener('touchend', removeActive);
   button.addEventListener('touchcancel', removeActive);
 });
+

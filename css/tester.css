@@ -80,6 +80,16 @@
     background-color: yellow;
 }
 
+.arrow-left {
+  font-size: 2em;
+  transform: translate(-2px, -4px);
+}
+
+.arrow-right {
+  font-size: 2em;
+  transform: translate(4px, -4px);
+}
+
 .nav-arrow.hidden {
   display: none;
 }
@@ -88,8 +98,8 @@
   position: fixed;
   bottom: 1em;
 
-  width: 2.5em;
-  height: 2.5em;
+  width: 60px;
+  height: 60px;
   padding: 0;
 
   border-radius: 50%;
@@ -104,6 +114,7 @@
 
   background: var(--accent);
   border: none;
+  color: white;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -134,6 +145,21 @@
 
 .nav-next {
   right: 1em;
+}
+
+.next-icon-pulse {
+  animation: nextIconPulse 1.2s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes nextIconPulse {
+  0%, 100% {
+    transform: translateY(-4px) translateX(4px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-4px) translateX(4px) scale(1.4);
+  }
 }
 
 .choice.eliminated {
@@ -191,8 +217,12 @@
 }
 
 .prove-area {
-  padding: 2em 1em 4em 1em;
+  padding: 1em 1em 1em 1em;
+  border: 1px solid #222;
+  background: #fff;
+  margin: 1em 0 4em 0;
 }
+
 
 .prove-area.hidden {
   display: none;
@@ -202,6 +232,7 @@
   padding-bottom: 1em;
   font-weight: bold;
   text-align: center;
+  font-style: italic;
 }
 
 .prove-options {

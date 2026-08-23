@@ -5,6 +5,18 @@ let questionStates = [];
 let activeFeedbackCleanup = null;
 let basePassageHtml = '';
 
+function updateQuestionIndicator(index) {
+  const lessonIndicator = document.getElementById("lesson-indicator");
+  if (lessonIndicator && cueData && cueData.lessonName) {
+    lessonIndicator.textContent = cueData.lessonName;
+  }
+  
+  const questionIndicator = document.getElementById("question-indicator");
+  if (questionIndicator) {
+    questionIndicator.textContent = `${index + 1} / ${questions.length}`;
+  }
+}
+
 function applyFeedback(choice, question) {
 
   if (activeFeedbackCleanup) {
@@ -627,6 +639,7 @@ function showFindAndClickProve(question, state, proveArea) {
 
 function displayQuestion(index) {
   questionIndex = index;
+  updateQuestionIndicator(index);
 
   const cueContent = document.getElementById('cue-content');
   const question = questions[index];
@@ -760,31 +773,19 @@ document.getElementById('nextQuestionButton').addEventListener('click', () => {
   }
 });
 
-loadCueContent();
-
 document.addEventListener('DOMContentLoaded', () => {
   requestAnimationFrame(() => {
       document.body.classList.remove('preload');
     });
     
-    /*
-    settingsButton.addEventListener('click', () => {
-      settingsButton.blur();
-      document.getElementById('settingsMenu')?.classList.toggle('show');
-    });
-    */
+    const menuExpander = document.getElementById("menu-expander");
+    const expandedMenu = document.getElementById("expanded-menu");
+
+    menuExpander.addEventListener('click', () => {
+        menuExpander.classList.toggle('expanded');
+        expandedMenu.classList.toggle('menu-visible')
+      }
+    )
 });
 
-document.querySelectorAll('.circle-btn').forEach(button => {
-  button.addEventListener('touchstart', () => {
-    button.classList.add('active');
-  });
-
-  const removeActive = () => {
-    button.classList.remove('active');
-  };
-
-  button.addEventListener('touchend', removeActive);
-  button.addEventListener('touchcancel', removeActive);
-});
-
+loadCueContent();

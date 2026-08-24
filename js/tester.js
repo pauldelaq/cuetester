@@ -782,10 +782,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const expandedMenu = document.getElementById("expanded-menu");
 
     menuExpander.addEventListener('click', () => {
-        menuExpander.classList.toggle('expanded');
         expandedMenu.classList.toggle('menu-visible')
+        if (expandedMenu.classList.contains('menu-visible')) {
+          menuExpander.textContent = "X";
+        } else {
+          menuExpander.textContent = "≡"
+        }
       }
     )
+
+    const hintButton = document.getElementById("hint-button");
+
+    hintButton.addEventListener('click', () => {
+      const question = questions[questionIndex];
+      if (!question) return;
+
+      // Only allow hint for passage or question, not choices
+      // If question text exists OR passage exists (not both undefined)
+      const hasPassageOrQuestion = Boolean(question.passage || question.question);
+
+      if (hasPassageOrQuestion) {
+        // Show correct feedback visually but do not mark the state solved/correct
+        applyCorrectAnswerFeedback(question, true);
+      }
+      // If the current question/section is "choices" only, do nothing
+        menuExpander.textContent = "≡";
+        expandedMenu.classList.toggle('menu-visible')
+    });
 });
 
 loadCueContent();

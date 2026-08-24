@@ -23,7 +23,6 @@ html {
 
 body {
   margin: 0;
-  min-height: 100vh;
 
   font-family: 'Arial', sans-serif;
   letter-spacing: 1px;
@@ -248,14 +247,8 @@ h2 {
     height: 42px;
     padding: 0;
     margin: 0;
-    transform: rotate(0deg);
-    transition: transform 160ms ease;
     touch-action: manipulation;
     border-radius: 50%;
-}
-
-.menuExpander.expanded {
-    transform: rotate(90deg);
 }
 
 .expanded-menu {
@@ -263,6 +256,7 @@ h2 {
   background: white;
   width: stretch;
   display: none;
+  z-index: 5;
 }
 
 .menu-visible {
@@ -274,7 +268,7 @@ h2 {
   border-top: none;
   border-left: none;
   border-right: none;
-  padding: 0.5em 0 0.5em 1em;
+  padding: 0.5em 0 0.5em 2em;
   width: stretch;
   background: white;
   font-size: 20px;

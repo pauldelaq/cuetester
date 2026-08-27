@@ -4,6 +4,11 @@ let questionIndex = 0;
 let questionStates = [];
 let activeFeedbackCleanup = null;
 let basePassageHtml = '';
+let translationLanguage =
+  localStorage.getItem('translationLanguage') || 'zh-TW';
+const languageSelector = document.getElementById('language-selector');
+
+
 
 function updateQuestionIndicator(index) {
   const lessonIndicator = document.getElementById("lesson-indicator");
@@ -477,6 +482,8 @@ function restoreSolvedState(state, question) {
   );
 
   feedbackArea.textContent = '✓';
+  feedbackArea.classList.remove('incorrect-color');
+  feedbackArea.classList.add('correct-color');
   correctButton?.classList.add('selected');
 
   applyFeedback(correctChoice, question);
@@ -589,6 +596,9 @@ function showChoiceProve(question, state, proveArea) {
         applyCorrectAnswerFeedback(question, true);
         updateNavigation(true);
 
+        proveArea.classList.add("added-margin");
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
         // << Add: Check the prove-status checkbox when solved >>
         const proveCheckbox = proveArea.querySelector('#prove-status');
         if (proveCheckbox) {
@@ -628,6 +638,9 @@ function showFindAndClickProve(question, state, proveArea) {
     applyCorrectAnswerFeedback(question, true);
     updateChoiceStates(state, question, question.correct);
     updateNavigation(true);
+
+    proveArea.classList.add("added-margin");
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
     // << Add: Check the prove-status checkbox when solved >>
     const proveCheckbox = proveArea.querySelector('#prove-status');
@@ -706,6 +719,8 @@ function displayQuestion(index) {
 
     if (selectedChoice === question.correct) {
       feedbackArea.textContent = '✓';
+      feedbackArea.classList.remove('incorrect-color');
+      feedbackArea.classList.add('correct-color');
       state.correctAnswered = true;
 
       if (question.prove && !state.proveSolved) {
@@ -721,6 +736,8 @@ function displayQuestion(index) {
 
     } else {
       feedbackArea.textContent = '✕';
+      feedbackArea.classList.remove('correct-color');
+      feedbackArea.classList.add('incorrect-color');
 
       if (question.prove && !state.proveSolved) {
         const proveArea = document.querySelector('.prove-area');
@@ -778,15 +795,26 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('preload');
     });
     
+    const settingsButton = document.getElementById('settings-button');
+    const settingsMenu = document.getElementById('settings-menu');
     const menuExpander = document.getElementById("menu-expander");
     const expandedMenu = document.getElementById("expanded-menu");
 
     menuExpander.addEventListener('click', () => {
         expandedMenu.classList.toggle('menu-visible')
         if (expandedMenu.classList.contains('menu-visible')) {
-          menuExpander.textContent = "X";
+          menuExpander.textContent = "✕";
         } else {
           menuExpander.textContent = "≡"
+        }
+        
+        if (settingsMenu.classList.contains('menu-visible')) {
+          settingsMenu.classList.toggle('menu-visible');
+          if (expandedMenu.classList.contains('menu-visible')) {
+            menuExpander.textContent = "✕";
+          } else {
+            menuExpander.textContent = "≡"
+          }
         }
       }
     )
@@ -809,6 +837,11 @@ document.addEventListener('DOMContentLoaded', () => {
         menuExpander.textContent = "≡";
         expandedMenu.classList.toggle('menu-visible')
     });
+
+    settingsButton.addEventListener('click', () => {
+      expandedMenu.classList.toggle('menu-visible');
+      settingsMenu.classList.toggle('menu-visible');
+    })
 });
 
 loadCueContent();

@@ -1,5 +1,55 @@
 {
   "lessonName": "Test 1",
+  "translations": {
+    "change your train reservation": {
+      "zh-TW": "更改你的火車訂位",
+      "ja": "列車の予約を変更する"
+    },
+    "a later train": {
+      "zh-TW": "較晚一班的火車",
+      "ja": "もっと遅い列車"
+    },
+    "finish the client presentation": {
+      "zh-TW": "完成客戶簡報",
+      "ja": "顧客向けのプレゼンを終える"
+    },
+    "before I leave": {
+      "zh-TW": "在我離開之前",
+      "ja": "出発する前に"
+    },
+    "arrive before dinner": {
+      "zh-TW": "晚餐前到達",
+      "ja": "夕食前に到着する"
+    },
+    "gets in at 6:20": {
+      "zh-TW": "在 6:20 抵達",
+      "ja": "6時20分に到着する"
+    },
+    "pick me up at the station": {
+      "zh-TW": "到車站接我",
+      "ja": "駅まで迎えに来る"
+    },
+    "leave work a little early": {
+      "zh-TW": "稍微提早下班",
+      "ja": "少し早めに仕事を切り上げる"
+    },
+    "traveling for work": {
+      "zh-TW": "因工作出差",
+      "ja": "仕事で移動している"
+    },
+    "cancel his trip": {
+      "zh-TW": "取消他的行程",
+      "ja": "旅行をキャンセルする"
+    },
+    "meet Mr. Kim at the station": {
+      "zh-TW": "在車站與 Kim 先生會合",
+      "ja": "駅でキムさんと会う"
+    },
+    "No problem": {
+      "zh-TW": "沒問題",
+      "ja": "問題ないです"
+    }
+  },
 
   "questionSets": [
     

@@ -74,6 +74,17 @@
 
 .feedback-area {
   font-weight: bold;
+  font-size: 30px;
+  color: var(--accent);
+  margin-left: -6px;
+}
+
+.correct-color {
+  color: green;
+}
+
+.incorrect-color {
+  color: red;
 }
 
 .feedback-highlight {
@@ -220,9 +231,12 @@
   padding: 1em 1em 1em 1em;
   border: 1px solid #222;
   background: #fff;
-  margin: 1em 0 4em 0;
+  margin: 1em 0 1em 0;
 }
 
+.added-margin {
+  margin: 1em 0 4em 0;
+}
 
 .prove-area.hidden {
   display: none;
@@ -259,8 +273,8 @@
 }
 
 .prove-option.correct {
-  border-color: green;
   background: #ffffff;
+  border: solid 2px green;
 }
 
 .prove-option.incorrect {

@@ -31,10 +31,18 @@
   </header>
 
   <div id="expanded-menu" class="expanded-menu">
-    <button class="menu-item">Lesson List</button>
-    <button class="menu-item" id="hint-button">Hint</button>
-    <button class="menu-item">Translation</button>
-    <button class="menu-item">Help</button>
+    <button class="menu-item"><img class="menu-icon" src="assets/svg/E25E.svg"><span class="menu-label">Lesson List</span></button>
+    <button class="menu-item" id="hint-button"><img class="menu-icon" src="assets/svg/1F4A1.svg"><span class="menu-label">Hint</span></button>
+    <button class="menu-item"><img class="menu-icon" src="assets/svg/language-translation.svg"><span class="menu-label">Translation</span></button>
+    <button class="menu-item"><img class="menu-icon" src="assets/svg/2754.svg"><span class="menu-label">Help</span></button>
+    <button id="settings-button" class="menu-item"><img class="menu-icon" src="assets/svg/2699.svg"><span class="menu-label">Settings</span></button>
+  </div>
+
+  <div id="settings-menu" class="settings-menu">
+    <div class="settings-item">
+      <span class="settings-label">Translation Language:</span>
+      <select id="language-selector" class="language-selector">中文（繁體）</select>
+    </div>
   </div>
 
   <main id="cue-content">

@@ -41,7 +41,7 @@ main {
 }
 
 main#cue-content {
-  padding: 1em 20px 20px;
+  padding: 1em 20px 80px;
 
   display: flex;
   flex-direction: column;

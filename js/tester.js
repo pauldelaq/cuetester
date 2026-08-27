@@ -4,11 +4,223 @@ let questionIndex = 0;
 let questionStates = [];
 let activeFeedbackCleanup = null;
 let basePassageHtml = '';
-let translationLanguage =
-  localStorage.getItem('translationLanguage') || 'zh-TW';
-const languageSelector = document.getElementById('language-selector');
+let visualMode = 'feedback';
+let activeTranslationCleanup = null;
+let translationLanguage = 'zh-TW';
 
+function initializeLanguageDropdown() {
+  translationLanguage =
+    localStorage.getItem('translationLanguage') || 'zh-TW';
 
+  const languageSelector =
+    document.getElementById('language-selector');
+
+  languageSelector.value = translationLanguage;
+
+  languageSelector.addEventListener('change', () => {
+    translationLanguage = languageSelector.value;
+
+    localStorage.setItem(
+      'translationLanguage',
+      translationLanguage
+    );
+  });
+}
+
+function clearVisualState() {
+  if (activeTranslationCleanup) {
+    activeTranslationCleanup();
+    activeTranslationCleanup = null;
+  }
+
+  if (activeFeedbackCleanup) {
+    activeFeedbackCleanup();
+    activeFeedbackCleanup = null;
+  }
+
+  restoreBasePassageHtml();
+
+  document.querySelectorAll('.choice').forEach(button => {
+    button.classList.remove('selected', 'eliminated');
+  });
+
+  const feedbackArea = document.querySelector('.feedback-area');
+
+  if (feedbackArea) {
+    feedbackArea.textContent = '';
+    feedbackArea.classList.remove(
+      'correct-color',
+      'incorrect-color'
+    );
+  }
+
+  const proveArea = document.querySelector('.prove-area');
+
+  if (proveArea) {
+    proveArea.classList.add('hidden');
+  }
+}
+
+function enterTranslationMode() {
+  if (visualMode === 'translation') return;
+
+  clearVisualState();
+
+  visualMode = 'translation';
+
+  activeTranslationCleanup = applyTranslations();
+}
+
+function exitTranslationMode() {
+  if (visualMode !== 'translation') return;
+
+  clearVisualState();
+
+  visualMode = 'feedback';
+
+  const question = questions[questionIndex];
+  const state = questionStates[questionIndex];
+
+  restoreQuestionState(state, question);
+}
+
+function wrapTranslationText(sourceElement, targetText, translation) {
+  if (!sourceElement) return null;
+
+  const text = sourceElement.textContent;
+  const startIndex = text.indexOf(targetText);
+
+  if (startIndex === -1) return null;
+
+  const before = text.slice(0, startIndex);
+  const match = text.slice(
+    startIndex,
+    startIndex + targetText.length
+  );
+  const after = text.slice(startIndex + targetText.length);
+
+  sourceElement.textContent = '';
+
+  if (before) {
+    sourceElement.appendChild(
+      document.createTextNode(before)
+    );
+  }
+
+  const span = document.createElement('span');
+  span.className = 'translation-target';
+
+  const source = document.createElement('span');
+  source.className = 'translation-source';
+  source.textContent = match;
+
+  const label = document.createElement('span');
+  label.className = 'translation-label';
+  label.textContent = translation;
+
+  span.appendChild(source);
+  span.appendChild(label);
+
+  span.addEventListener('click', event => {
+    event.stopPropagation();
+    span.classList.toggle('translation-visible');
+  });
+
+  sourceElement.appendChild(span);
+
+  if (after) {
+    sourceElement.appendChild(
+      document.createTextNode(after)
+    );
+  }
+
+  return span;
+}
+
+function applyTranslations() {
+  const createdTargets = [];
+
+  const translationData = cueData?.translations || {};
+
+  Object.entries(translationData).forEach(
+    ([english, translations]) => {
+
+      const translation =
+        translations[translationLanguage];
+
+      if (!translation) return;
+
+      // Passage
+      const passageTarget = wrapPassageText(
+        english,
+        match => {
+          const span = document.createElement('span');
+          span.className = 'translation-target';
+
+          const source = document.createElement('span');
+          source.className = 'translation-source';
+          source.textContent = match;
+
+          const label = document.createElement('span');
+          label.className = 'translation-label';
+          label.textContent = translation;
+
+          span.appendChild(source);
+          span.appendChild(label);
+
+          span.addEventListener('click', event => {
+            event.stopPropagation();
+            span.classList.toggle('translation-visible');
+          });
+
+          return span;
+        }
+      );
+
+      if (passageTarget) {
+        createdTargets.push(passageTarget);
+      }
+
+      // Question
+      const questionTarget = wrapTranslationText(
+        document.querySelector('.question-text'),
+        english,
+        translation
+      );
+
+      if (questionTarget) {
+        createdTargets.push(questionTarget);
+      }
+
+      // Choices
+      document
+        .querySelectorAll('.choice-text')
+        .forEach(choiceElement => {
+          const choiceTarget = wrapTranslationText(
+            choiceElement,
+            english,
+            translation
+          );
+
+          if (choiceTarget) {
+            createdTargets.push(choiceTarget);
+          }
+        });
+    }
+  );
+
+  return () => {
+    createdTargets.forEach(target => {
+      if (!target.isConnected) return;
+
+      const sourceText =
+        target.querySelector('.translation-source')?.textContent ??
+        target.textContent;
+
+      target.replaceWith(sourceText);
+    });
+  };
+}
 
 function updateQuestionIndicator(index) {
   const lessonIndicator = document.getElementById("lesson-indicator");
@@ -420,7 +632,8 @@ async function loadCueContent() {
       correctAnswered: false,
       proveSolved: false,
       solved: false,
-      attemptedChoices: []
+      attemptedChoices: [],
+      activeChoice: null
     }));
 
     displayQuestion(questionIndex);
@@ -488,6 +701,77 @@ function restoreSolvedState(state, question) {
 
   applyFeedback(correctChoice, question);
   updateChoiceStates(state, question, question.correct);
+}
+
+function restoreQuestionState(state, question) {
+  restoreBasePassageHtml();
+
+  if (activeFeedbackCleanup) {
+    activeFeedbackCleanup();
+    activeFeedbackCleanup = null;
+  }
+
+  document.querySelectorAll('.choice').forEach(button => {
+    button.classList.remove('selected');
+  });
+
+  const feedbackArea = document.querySelector('.feedback-area');
+
+  if (feedbackArea) {
+    feedbackArea.textContent = '';
+    feedbackArea.classList.remove(
+      'correct-color',
+      'incorrect-color'
+    );
+  }
+
+  if (state.solved) {
+    restoreSolvedState(state, question);
+    return;
+  }
+
+  if (!state.activeChoice) {
+    updateChoiceStates(state, question);
+    return;
+  }
+
+  const activeChoice = state.activeChoice;
+
+  const activeButton = document.querySelector(
+    `.choice[data-choice="${activeChoice}"]`
+  );
+
+  activeButton?.classList.add('selected');
+
+  if (activeChoice === question.correct) {
+    if (feedbackArea) {
+      feedbackArea.textContent = '✓';
+      feedbackArea.classList.add('correct-color');
+    }
+
+    if (question.prove && !state.proveSolved) {
+      showProveActivity(question, state);
+    } else {
+      applyCorrectAnswerFeedback(question, true);
+    }
+
+  } else {
+    if (feedbackArea) {
+      feedbackArea.textContent = '✕';
+      feedbackArea.classList.add('incorrect-color');
+    }
+
+    applyFeedback(
+      question.choices[activeChoice],
+      question
+    );
+  }
+
+  updateChoiceStates(
+    state,
+    question,
+    activeChoice
+  );
 }
 
 function renderPassageBlanks(question) {
@@ -596,7 +880,6 @@ function showChoiceProve(question, state, proveArea) {
         applyCorrectAnswerFeedback(question, true);
         updateNavigation(true);
 
-        proveArea.classList.add("added-margin");
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
         // << Add: Check the prove-status checkbox when solved >>
@@ -639,7 +922,6 @@ function showFindAndClickProve(question, state, proveArea) {
     updateChoiceStates(state, question, question.correct);
     updateNavigation(true);
 
-    proveArea.classList.add("added-margin");
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 
     // << Add: Check the prove-status checkbox when solved >>
@@ -695,12 +977,21 @@ function displayQuestion(index) {
   renderPassageBlanks(question);
   storeBasePassageHtml();
 
-  restoreSolvedState(state, question);
+  restoreQuestionState(state, question);
   updateNavigation();
 
   document.querySelectorAll('.choice').forEach(button => {
     button.addEventListener('click', () => {
+
+      if (visualMode !== 'feedback') {
+        clearVisualState();
+        visualMode = 'feedback';
+        restoreQuestionState(state, question);
+      }
+
       const selectedChoice = button.dataset.choice;
+      state.activeChoice = selectedChoice;
+
       const choice = question.choices[selectedChoice];
       const feedbackArea = document.querySelector('.feedback-area');
 
@@ -795,13 +1086,14 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('preload');
     });
     
+    const translationButton = document.getElementById('translation-button');
     const settingsButton = document.getElementById('settings-button');
     const settingsMenu = document.getElementById('settings-menu');
     const menuExpander = document.getElementById("menu-expander");
     const expandedMenu = document.getElementById("expanded-menu");
 
-    menuExpander.addEventListener('click', () => {
-        expandedMenu.classList.toggle('menu-visible')
+    function toggleExpandedMenu() {
+      expandedMenu.classList.toggle('menu-visible')
         if (expandedMenu.classList.contains('menu-visible')) {
           menuExpander.textContent = "✕";
         } else {
@@ -816,6 +1108,15 @@ document.addEventListener('DOMContentLoaded', () => {
             menuExpander.textContent = "≡"
           }
         }
+    }
+
+    translationButton.addEventListener('click', () => {
+      enterTranslationMode();
+      toggleExpandedMenu();
+    });
+
+    menuExpander.addEventListener('click', () => {
+        toggleExpandedMenu();
       }
     )
 
@@ -824,7 +1125,9 @@ document.addEventListener('DOMContentLoaded', () => {
     hintButton.addEventListener('click', () => {
       const question = questions[questionIndex];
       if (!question) return;
-
+      clearVisualState();
+      visualMode = 'hint';
+      
       // Only allow hint for passage or question, not choices
       // If question text exists OR passage exists (not both undefined)
       const hasPassageOrQuestion = Boolean(question.passage || question.question);
@@ -842,6 +1145,8 @@ document.addEventListener('DOMContentLoaded', () => {
       expandedMenu.classList.toggle('menu-visible');
       settingsMenu.classList.toggle('menu-visible');
     })
+
+  initializeLanguageDropdown();
 });
 
 loadCueContent();

@@ -5,8 +5,52 @@ let questionStates = [];
 let activeFeedbackCleanup = null;
 let basePassageHtml = '';
 let visualMode = 'feedback';
+let screenMode = 'questions';
 let activeTranslationCleanup = null;
 let translationLanguage = 'zh-TW';
+
+let scrollCue = null;
+
+function ensureScrollCue() {
+  if (scrollCue) return scrollCue;
+
+  scrollCue = document.createElement('button');
+  scrollCue.type = 'button';
+  scrollCue.className = 'scroll-down-cue hidden';
+  scrollCue.setAttribute('aria-label', 'More content below');
+  scrollCue.innerHTML = '⌄';
+
+  scrollCue.addEventListener('click', () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth'
+    });
+  });
+
+  document.body.appendChild(scrollCue);
+
+  return scrollCue;
+}
+
+function updateScrollCue() {
+  const cue = ensureScrollCue();
+
+  const documentHeight = document.documentElement.scrollHeight;
+  const viewportBottom = window.scrollY + window.innerHeight;
+
+  const scrollCueBuffer = 120;
+
+  const hasMoreBelow =
+    documentHeight - viewportBottom > scrollCueBuffer;
+
+  cue.classList.toggle('hidden', !hasMoreBelow);
+}
+
+function refreshScrollCue() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(updateScrollCue);
+  });
+}
 
 function initializeLanguageDropdown() {
   translationLanguage =
@@ -234,6 +278,35 @@ function updateQuestionIndicator(index) {
   }
 }
 
+function displayInstructions() {
+  screenMode = 'instructions';
+
+  const cueContent = document.getElementById('cue-content');
+  const lessonIndicator = document.getElementById('lesson-indicator');
+  const questionIndicator = document.getElementById('question-indicator');
+  const prevButton = document.getElementById('prevQuestionButton');
+  const nextButton = document.getElementById('nextQuestionButton');
+  const nextArrow = document.getElementById('next-arrow');
+
+  if (lessonIndicator && cueData?.lessonName) {
+    lessonIndicator.textContent = cueData.lessonName;
+  }
+
+  if (questionIndicator) {
+    questionIndicator.textContent = '';
+  }
+
+  cueContent.innerHTML = `
+    <div class="test-instructions">
+      ${cueData.instructions}
+    </div>
+  `;
+
+  prevButton?.classList.add('hidden');
+  nextButton?.classList.remove('hidden');
+  nextArrow?.classList.add('next-icon-pulse');
+}
+
 function applyFeedback(choice, question) {
 
   if (activeFeedbackCleanup) {
@@ -281,6 +354,27 @@ function applyCorrectAnswerFeedback(question, includeChoiceTargets = true) {
   applyFeedback(filteredChoice, question);
 }
 
+function findOccurrenceIndex(text, targetText, occurrence = 1) {
+  let searchIndex = 0;
+  let matchCount = 0;
+
+  while (searchIndex < text.length) {
+    const startIndex = text.indexOf(targetText, searchIndex);
+
+    if (startIndex === -1) return -1;
+
+    matchCount++;
+
+    if (matchCount === occurrence) {
+      return startIndex;
+    }
+
+    searchIndex = startIndex + targetText.length;
+  }
+
+  return -1;
+}
+
 function applyAnnotationFeedback(targets) {
   const createdAnnotationTargets = [];
   const groupedTargets = new Map();
@@ -290,8 +384,7 @@ function applyAnnotationFeedback(targets) {
     // Passage targets need to preserve the existing formatted HTML.
     if (target.source === 'passage') {
       const annotationTarget = wrapPassageText(target.text, match => {
-        const hasAnnotation = target.annotation !== '';
-
+        const hasAnnotation = Boolean(target.annotation);
         const wrapper = document.createElement('span');
 
         wrapper.className = hasAnnotation
@@ -313,7 +406,7 @@ function applyAnnotationFeedback(targets) {
         }
 
         return wrapper;
-      });
+      }, target.occurrence ?? 1);
 
       if (annotationTarget) {
         createdAnnotationTargets.push(annotationTarget);
@@ -348,9 +441,13 @@ function applyAnnotationFeedback(targets) {
     const targetsWithPositions = elementTargets
       .map(target => ({
         ...target,
-        index: html.indexOf(target.text)
+        index: findOccurrenceIndex(
+          html,
+          target.text,
+          target.occurrence ?? 1
+        )
       }))
-      .filter(target => target.index !== -1)
+        .filter(target => target.index !== -1)
       .sort((a, b) => b.index - a.index);
 
     targetsWithPositions.forEach(target => {
@@ -365,7 +462,7 @@ function applyAnnotationFeedback(targets) {
         target.index + target.text.length
       );
 
-      const hasAnnotation = target.annotation !== '';
+      const hasAnnotation = Boolean(target.annotation);
 
       const annotationLabel = hasAnnotation
         ? `<span class="annotation-label">${target.annotation}</span>`
@@ -477,12 +574,16 @@ function applyHighlightFeedback(targets) {
   targets.forEach(target => {
 
     if (target.source === 'passage') {
-      const highlight = wrapPassageText(target.text, match => {
-        const span = document.createElement('span');
-        span.className = 'feedback-highlight';
-        span.textContent = match;
-        return span;
-      });
+      const highlight = wrapPassageText(
+        target.text,
+        match => {
+          const span = document.createElement('span');
+          span.className = 'feedback-highlight';
+          span.textContent = match;
+          return span;
+        },
+        target.occurrence ?? 1
+      );
 
       if (highlight) {
         createdHighlights.push(highlight);
@@ -504,7 +605,12 @@ function applyHighlightFeedback(targets) {
     if (!sourceElement) return;
 
     const text = sourceElement.textContent;
-    const startIndex = text.indexOf(target.text);
+
+    const startIndex = findOccurrenceIndex(
+      text,
+      target.text,
+      target.occurrence ?? 1
+    );
 
     if (startIndex === -1) return;
 
@@ -611,7 +717,11 @@ function applyFocusFeedback(targets) {
 
 async function loadCueContent() {
   try {
-    const response = await fetch('data/sample.json');
+    const params = new URLSearchParams(window.location.search);
+    const part = params.get('part') || '1';
+    const dataSource = `data/part${part}.json`;
+
+    const response = await fetch(dataSource);
     cueData = await response.json();
 
     let runningQuestionNumber = 1;
@@ -636,7 +746,12 @@ async function loadCueContent() {
       activeChoice: null
     }));
 
+  if (cueData.instructions) {
+    displayInstructions();
+  } else {
+    screenMode = 'questions';
     displayQuestion(questionIndex);
+  }
 
   } catch (error) {
     console.error('Error loading cue content:', error);
@@ -823,9 +938,7 @@ function showProveActivity(question, state) {
   `;
 
   proveArea.classList.remove('hidden');
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  });
+  refreshScrollCue();
 
   switch (question.prove.type) {
     case 'choice':
@@ -880,7 +993,7 @@ function showChoiceProve(question, state, proveArea) {
         applyCorrectAnswerFeedback(question, true);
         updateNavigation(true);
 
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        refreshScrollCue();
 
         // << Add: Check the prove-status checkbox when solved >>
         const proveCheckbox = proveArea.querySelector('#prove-status');
@@ -898,16 +1011,73 @@ function showChoiceProve(question, state, proveArea) {
 function showFindAndClickProve(question, state, proveArea) {
   restoreBasePassageHtml();
 
-  const target = wrapPassageText(question.prove.correct, match => {
-    const span = document.createElement('span');
-    span.className = 'prove-find-target';
-    span.textContent = match;
-    return span;
-  });
+  let target = null;
+
+  const source = question.prove.source || 'passage';
+
+  if (source === 'passage') {
+    target = wrapPassageText(
+      question.prove.correct,
+      match => {
+        const span = document.createElement('span');
+        span.className = 'prove-find-target';
+        span.textContent = match;
+        return span;
+      }
+    );
+  }
+
+  if (source === 'question') {
+    const questionElement =
+      document.querySelector('.question-text');
+
+    if (questionElement) {
+      const text = questionElement.textContent;
+
+      const startIndex =
+        text.indexOf(question.prove.correct);
+
+      if (startIndex !== -1) {
+        const before =
+          text.slice(0, startIndex);
+
+        const match =
+          text.slice(
+            startIndex,
+            startIndex + question.prove.correct.length
+          );
+
+        const after =
+          text.slice(
+            startIndex + question.prove.correct.length
+          );
+
+        questionElement.textContent = '';
+
+        if (before) {
+          questionElement.appendChild(
+            document.createTextNode(before)
+          );
+        }
+
+        target = document.createElement('span');
+        target.className = 'prove-find-target';
+        target.textContent = match;
+
+        questionElement.appendChild(target);
+
+        if (after) {
+          questionElement.appendChild(
+            document.createTextNode(after)
+          );
+        }
+      }
+    }
+  }
 
   if (!target) {
     console.warn(
-      `Could not find prove target in passage: ${question.prove.correct}`
+      `Could not find prove target in ${source}: ${question.prove.correct}`
     );
     return;
   }
@@ -922,10 +1092,11 @@ function showFindAndClickProve(question, state, proveArea) {
     updateChoiceStates(state, question, question.correct);
     updateNavigation(true);
 
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    refreshScrollCue();
 
-    // << Add: Check the prove-status checkbox when solved >>
-    const proveCheckbox = proveArea.querySelector('#prove-status');
+    const proveCheckbox =
+      proveArea.querySelector('#prove-status');
+
     if (proveCheckbox) {
       proveCheckbox.checked = true;
     }
@@ -933,6 +1104,7 @@ function showFindAndClickProve(question, state, proveArea) {
 }
 
 function displayQuestion(index) {
+  screenMode = 'questions';
   questionIndex = index;
   updateQuestionIndicator(index);
 
@@ -979,6 +1151,8 @@ function displayQuestion(index) {
 
   restoreQuestionState(state, question);
   updateNavigation();
+
+  refreshScrollCue();
 
   document.querySelectorAll('.choice').forEach(button => {
     button.addEventListener('click', () => {
@@ -1065,6 +1239,18 @@ document.getElementById('prevQuestionButton').addEventListener('click', () => {
 });
 
 document.getElementById('nextQuestionButton').addEventListener('click', () => {
+  if (screenMode === 'instructions') {
+    screenMode = 'questions';
+    displayQuestion(0);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+
+    return;
+  }
+
   if (questionIndex < questions.length - 1) {
     const targetIndex = questionIndex + 1;
 
@@ -1145,6 +1331,20 @@ document.addEventListener('DOMContentLoaded', () => {
       expandedMenu.classList.toggle('menu-visible');
       settingsMenu.classList.toggle('menu-visible');
     })
+
+    ensureScrollCue();
+    refreshScrollCue();
+
+    window.addEventListener(
+      'scroll',
+      updateScrollCue,
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'resize',
+      refreshScrollCue
+    );
 
   initializeLanguageDropdown();
 });

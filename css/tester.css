@@ -378,3 +378,44 @@
 .translation-target.translation-visible .translation-label {
   display: block;
 }
+
+.instructions-block {
+  border: 1px solid #222;
+  background: #fff;
+  padding: 1em;
+}
+
+.scroll-down-cue {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+
+  animation: scrollCueBounce 1.2s ease-in-out infinite;
+}
+
+.scroll-down-cue.hidden {
+  display: none;
+}
+
+@keyframes scrollCueBounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(5px);
+  }
+}

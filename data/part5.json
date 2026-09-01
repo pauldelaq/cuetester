@@ -1,0 +1,397 @@
+{
+  "lessonName": "Part 5",
+
+    "instructions": "<div class='instructions-block'><span><strong>READING TEST</strong></span><br><br><br><span><strong>PART 5</strong></span><p><strong>Directions:</strong> A word or phrase is missing in each of the following sentences. Four answer choices are given below each sentence. Select the best answer to complete the sentence.</p></div>",
+
+  "translations": {
+    "change your train reservation": {
+      "zh-TW": "更改你的火車訂位",
+      "ja": "列車の予約を変更する"
+    }
+  },
+  "questionSets": [
+    {
+      "questions": [
+                {
+          "question": "After examining the negative reviews of his business, the manager felt ------- .",
+
+          "choices": {
+            "A": {
+              "text": "frustrating",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "question", "text": "felt"},
+                { "source": "choice", "choice": "A", "text": "ing"}
+              ]
+            },
+
+            "B": {
+              "text": "frustrate",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "B", "text": "frustrate", "annotation": "v." }
+              ]
+
+            },
+
+            "C": {
+              "text": "frustrates",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "C", "text": "frustrates", "annotation": "v." }
+              ]
+            },
+
+            "D": {
+              "text": "frustrated",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "manager", "annotation": "n." },
+                { "source": "question", "text": "felt", "annotation": "v." },
+                { "source": "choice", "choice": "D", "text": "frustrated", "annotation": "adj." }
+              ]
+            }
+          },
+
+          "correct": "D",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which part of speech should be used?",
+            "options": ["n.", "v.", "adj.", "adv."],
+            "correct": "adj."
+          }
+        }
+      ]
+    },
+        {
+
+      "questions": [
+        {
+          "question": "Mr. Thomas has received two promotions ------- he joined the company two years ago.",
+
+          "choices": {
+            "A": {
+              "text": "despite",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "A", "text": "despite", "annotation": "+ v.ing"}
+              ]
+            },
+
+            "B": {
+              "text": "during",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "B", "text": "during", "annotation": "+ noun phrase"}
+              ]
+
+            },
+
+            "C": {
+              "text": "since",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "has received", "annotation": "" },
+                { "source": "question", "text": "two years ago", "annotation": "" },
+                { "source": "choice", "choice": "C", "text": "since", "annotation": "from the time" }
+              ]
+            },
+
+            "D": {
+              "text": "expect",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "D", "text": "expect", "annotation": "hope to (v.)" }
+              ]
+            }
+          },
+
+          "correct": "C",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which phrase is closest in meaning to \"since\"?",
+            "options": ["because", "from the time", "before", "even though"],
+            "correct": "from the time"
+          }
+        }
+
+      ]
+    },
+        {
+    "questions": [
+        {
+        "question": "Applications ------- after Friday will not be considered for the internship program.",
+
+        "choices": {
+            "A": {
+            "text": "receive",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "Applications", "annotation": "n." },
+                { "source": "choice", "choice": "A", "text": "receive", "annotation": "v. (active)" }
+            ]
+            },
+
+            "B": {
+            "text": "received",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "Applications", "annotation": "n." },
+                { "source": "question", "text": "will not be considered", "annotation": "main verb" },
+                { "source": "choice", "choice": "B", "text": "received", "annotation": "past participle" }
+            ]
+            },
+
+            "C": {
+            "text": "receives",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "Applications", "annotation": "n. plural" },
+                { "source": "choice", "choice": "C", "text": "receives", "annotation": "v. singular (active)" }
+            ]
+            },
+
+            "D": {
+            "text": "receiving",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "Applications", "annotation": "n." },
+                { "source": "choice", "choice": "D", "text": "receiving", "annotation": "v. (active)" }
+            ]
+            }
+        },
+
+        "correct": "B",
+
+        "prove": {
+            "type": "choice",
+            "prompt": "Are the applications performing or receiving the action?",
+            "options": ["performing", "receiving"],
+            "correct": "receiving"
+        }
+        }
+    ]
+    },
+    {
+    "questions": [
+        {
+        "question": "The hotel plans to ------- its conference facilities before the beginning of the tourist season.",
+
+        "choices": {
+            "A": {
+            "text": "renovate",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "conference facilities" },
+                { "source": "choice", "choice": "A", "text": "renovate" }
+            ]
+            },
+
+            "B": {
+            "text": "reserve",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "conference facilities" },
+                { "source": "choice", "choice": "B", "text": "reserve", "annotation": "book/arrange for use" }
+            ]
+            },
+
+            "C": {
+            "text": "deliver",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "conference facilities" },
+                { "source": "choice", "choice": "C", "text": "deliver", "annotation": "send" }
+            ]
+            },
+
+            "D": {
+            "text": "attend",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "conference facilities" },
+                { "source": "choice", "choice": "D", "text": "attend", "annotation": "participate in" }
+            ]
+            }
+        },
+
+        "correct": "A",
+        "prove": {
+            "type": "choice",
+            "prompt": "Which word is closest in meaning to \"renovate\"?",
+            "options": ["reopen", "inspect", "remodel", "repair"],
+            "correct": "remodel"
+        }
+
+        }
+    ]
+    },
+    {
+    "questions": [
+        {
+        "question": "Because the first training session is full, employees may register for ------- session scheduled for Thursday.",
+
+        "choices": {
+            "A": {
+            "text": "another",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "session", "occurrence": 2, "annotation": "singular n." },
+                { "source": "choice", "choice": "A", "text": "another", "annotation": "one more" }
+            ]
+            },
+
+            "B": {
+            "text": "other",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "session", "occurrence": 2, "annotation": "singular n." },
+                { "source": "choice", "choice": "B", "text": "other" }
+            ]
+            },
+
+            "C": {
+            "text": "others",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "-------", "annotation": "adj."},
+                { "source": "question", "text": "session", "occurrence": 2, "annotation": "n."},
+                { "source": "choice", "choice": "C", "text": "others", "annotation": "pronoun" }
+            ]
+            },
+
+            "D": {
+            "text": "each",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "the first training session is full" },
+                { "source": "choice", "choice": "D", "text": "each" }
+            ]
+            }
+        },
+
+        "correct": "A",
+
+        "prove": {
+            "type": "choice",
+            "prompt": "What does \"another\" mean here?",
+            "options": ["the same one", "one more", "all of them", "neither one"],
+            "correct": "one more"
+        }
+        }
+    ]
+    },
+    {
+    "questions": [
+        {
+        "question": "Visitors are required to keep their identification cards with them ------- all times while inside the research facility.",
+
+        "choices": {
+            "A": {
+            "text": "at",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "all times" },
+                { "source": "choice", "choice": "A", "text": "at" }
+            ]
+            },
+
+            "B": {
+            "text": "on",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "all times" },
+                { "source": "choice", "choice": "B", "text": "on" }
+            ]
+            },
+
+            "C": {
+            "text": "by",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "all times" },
+                { "source": "choice", "choice": "C", "text": "by" }
+            ]
+            },
+
+            "D": {
+            "text": "for",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "all times" },
+                { "source": "choice", "choice": "D", "text": "for" }
+            ]
+            }
+        },
+
+        "correct": "A",
+
+        "prove": {
+            "type": "choice",
+            "prompt": "Which phrase is closest in meaning to \"at all times\"?",
+            "options": ["now", "always", "usually", "early"],
+            "correct": "always"
+        }
+        }
+    ]
+    },
+    {
+    "questions": [
+        {
+        "question": "Several computers in the accounting department are now ------- and will be replaced next month.",
+
+        "choices": {
+            "A": {
+            "text": "portable",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "choice", "choice": "A", "text": "portable", "annotation": "easy to carry" }
+            ]
+            },
+
+            "B": {
+            "text": "obsolete",
+            "feedbackType": "highlight",
+            "targets": [
+                { "source": "question", "text": "will be replaced next month" },
+                { "source": "choice", "choice": "B", "text": "obsolete" }
+            ]
+            },
+
+            "C": {
+            "text": "accurate",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "choice", "choice": "C", "text": "accurate", "annotation": "correct" }
+            ]
+            },
+
+            "D": {
+            "text": "available",
+            "feedbackType": "annotation",
+            "targets": [
+                { "source": "question", "text": "will be replaced next month" },
+                { "source": "choice", "choice": "D", "text": "available", "annotation": "can be used" }
+            ]
+            }
+        },
+
+        "correct": "B",
+
+        "prove": {
+            "type": "find-and-click",
+            "source": "question",
+            "prompt": "Which part of the answer suggests the answer? Find it and click.",
+            "correct": "will be replaced next month"
+        }
+        }
+    ]
+    }
+  ]
+}

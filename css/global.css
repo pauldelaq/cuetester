@@ -254,10 +254,12 @@ h2 {
 
 .expanded-menu {
   position: fixed;
+  top: 60px;
+  left: 0;
   background: white;
   width: 100%;
   display: none;
-  z-index: 5;
+  z-index: 1000;
 }
 
 .settings-menu {
@@ -319,7 +321,26 @@ h2 {
 }
 
 .parts-list {
-  display: grid;
+  width: calc(100% - 2em);
+  margin: 4em 1em 1em;
+  border-collapse: collapse;
+  background: white;
+}
+
+.parts-list td {
+  border: 1px solid black;
   padding: 1em;
-  gap: 1em;
+}
+
+.individual-parts a {
+  color: black;
+  text-decoration: none;
+}
+
+.individual-parts a:hover {
+  color: blue;
+}
+
+.bold {
+  font-weight: bold;
 }

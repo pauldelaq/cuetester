@@ -377,9 +377,27 @@ function findOccurrenceIndex(text, targetText, occurrence = 1) {
 
 function applyAnnotationFeedback(targets) {
   const createdAnnotationTargets = [];
+  const createdChoiceAnnotationBlocks = [];
+
+  const createdFootnoteTargets = [];
+  const createdFootnoteAreas = [];
+  const footnotesBySource = new Map();
+  const phraseTargets = [];
+
   const groupedTargets = new Map();
 
   targets.forEach(target => {
+    const hasAnnotation = Boolean(target.annotation);
+    const isPhrase = target.text.includes(' ');
+
+    if (
+      hasAnnotation &&
+      isPhrase &&
+      (target.source === 'passage' || target.source === 'question')
+    ) {
+      phraseTargets.push(target);
+      return;
+    }
 
     // Passage targets need to preserve the existing formatted HTML.
     if (target.source === 'passage') {
@@ -438,6 +456,11 @@ function applyAnnotationFeedback(targets) {
   groupedTargets.forEach((elementTargets, sourceElement) => {
     let html = sourceElement.textContent;
 
+    const isChoiceSource = Boolean(
+      sourceElement.closest('.choice')
+    );
+
+    const choiceAnnotations = [];
     const targetsWithPositions = elementTargets
       .map(target => ({
         ...target,
@@ -464,12 +487,27 @@ function applyAnnotationFeedback(targets) {
 
       const hasAnnotation = Boolean(target.annotation);
 
+      if (isChoiceSource) {
+        const wrappedMatch =
+          `<span class="annotation-word">${match}</span>`;
+
+        html = `${before}${wrappedMatch}${after}`;
+
+        if (hasAnnotation) {
+          choiceAnnotations.unshift(target.annotation);
+        }
+
+        return;
+      }
+
       const annotationLabel = hasAnnotation
         ? `<span class="annotation-label">${target.annotation}</span>`
         : '';
 
+      const isPhrase = target.text.includes(' ');
+
       const targetClass = hasAnnotation
-        ? 'annotation-target'
+        ? `annotation-target${isPhrase ? ' annotation-phrase' : ''}`
         : 'annotation-target annotation-highlight-only';
 
       html =
@@ -481,6 +519,15 @@ function applyAnnotationFeedback(targets) {
 
     sourceElement.innerHTML = html;
 
+    if (isChoiceSource && choiceAnnotations.length) {
+      const annotationBlock = document.createElement('div');
+      annotationBlock.className = 'choice-annotation';
+      annotationBlock.textContent = choiceAnnotations.join(' ');
+
+      sourceElement.appendChild(annotationBlock);
+      createdChoiceAnnotationBlocks.push(annotationBlock);
+    }
+
     sourceElement
       .querySelectorAll('.annotation-target')
       .forEach(annotationTarget => {
@@ -488,7 +535,191 @@ function applyAnnotationFeedback(targets) {
       });
   });
 
+  phraseTargets.forEach(target => {
+    let sourceElement;
+
+    if (target.source === 'passage') {
+      sourceElement = document.querySelector('.passage');
+    } else {
+      sourceElement = document.querySelector('.question-text');
+    }
+
+    if (!sourceElement) return;
+
+    if (!footnotesBySource.has(sourceElement)) {
+      footnotesBySource.set(sourceElement, []);
+    }
+
+    const footnotes = footnotesBySource.get(sourceElement);
+    const footnoteNumber = footnotes.length + 1;
+
+    footnotes.push({
+      number: footnoteNumber,
+      text: target.annotation
+    });
+
+    let footnoteTarget = null;
+
+    if (target.source === 'passage') {
+      footnoteTarget = wrapPassageText(
+        target.text,
+        match => {
+          const wrapper = document.createElement('span');
+          wrapper.className = 'annotation-footnote-target';
+
+          const highlighted = document.createElement('span');
+          highlighted.className = 'annotation-word';
+          highlighted.textContent = match;
+
+          const marker = document.createElement('sup');
+          marker.className = 'annotation-footnote-ref';
+          marker.textContent = footnoteNumber;
+
+          wrapper.appendChild(highlighted);
+          wrapper.appendChild(marker);
+
+          return wrapper;
+        },
+        target.occurrence ?? 1
+      );
+    } else {
+      const walker = document.createTreeWalker(
+        sourceElement,
+        NodeFilter.SHOW_TEXT
+      );
+
+      let textNode;
+      let matchCount = 0;
+
+      while ((textNode = walker.nextNode())) {
+        let searchIndex = 0;
+
+        while (searchIndex < textNode.textContent.length) {
+          const startIndex = textNode.textContent.indexOf(
+            target.text,
+            searchIndex
+          );
+
+          if (startIndex === -1) break;
+
+          matchCount++;
+
+          if (matchCount === (target.occurrence ?? 1)) {
+            const before = textNode.textContent.slice(0, startIndex);
+
+            const match = textNode.textContent.slice(
+              startIndex,
+              startIndex + target.text.length
+            );
+
+            const after = textNode.textContent.slice(
+              startIndex + target.text.length
+            );
+
+            const wrapper = document.createElement('span');
+            wrapper.className = 'annotation-footnote-target';
+
+            const highlighted = document.createElement('span');
+            highlighted.className = 'annotation-word';
+            highlighted.textContent = match;
+
+            const marker = document.createElement('sup');
+            marker.className = 'annotation-footnote-ref';
+            marker.textContent = footnoteNumber;
+
+            wrapper.appendChild(highlighted);
+            wrapper.appendChild(marker);
+
+            const fragment = document.createDocumentFragment();
+
+            if (before) {
+              fragment.appendChild(
+                document.createTextNode(before)
+              );
+            }
+
+            fragment.appendChild(wrapper);
+
+            if (after) {
+              fragment.appendChild(
+                document.createTextNode(after)
+              );
+            }
+
+            textNode.replaceWith(fragment);
+            footnoteTarget = wrapper;
+            break;
+          }
+
+          searchIndex = startIndex + target.text.length;
+        }
+
+        if (footnoteTarget) break;
+      }
+    }
+
+    if (footnoteTarget) {
+      createdFootnoteTargets.push(footnoteTarget);
+    }
+  });
+
+  footnotesBySource.forEach((footnotes, sourceElement) => {
+    if (!footnotes.length) return;
+
+    const notesArea = document.createElement('div');
+    notesArea.className = 'annotation-footnotes';
+
+    footnotes.forEach(note => {
+      const noteElement = document.createElement('div');
+      noteElement.className = 'annotation-footnote';
+
+      const marker = document.createElement('sup');
+      marker.className = 'annotation-footnote-marker';
+      marker.textContent = note.number;
+
+      noteElement.appendChild(marker);
+      noteElement.appendChild(
+        document.createTextNode(` ${note.text}`)
+      );
+
+      notesArea.appendChild(noteElement);
+    });
+
+    sourceElement.insertAdjacentElement('afterend', notesArea);
+    createdFootnoteAreas.push(notesArea);
+  });
+
   return () => {
+    createdFootnoteAreas.forEach(area => {
+      if (area.isConnected) {
+        area.remove();
+      }
+    });
+
+    createdFootnoteTargets.forEach(footnoteTarget => {
+      if (!footnoteTarget.isConnected) return;
+
+      const text =
+        footnoteTarget.querySelector('.annotation-word')?.textContent ??
+        footnoteTarget.textContent;
+
+      footnoteTarget.replaceWith(text);
+    });
+
+    createdChoiceAnnotationBlocks.forEach(annotationBlock => {
+      if (annotationBlock.isConnected) {
+        annotationBlock.remove();
+      }
+    });
+
+    document
+      .querySelectorAll('.choice-text .annotation-word')
+      .forEach(annotationWord => {
+        if (annotationWord.isConnected) {
+          annotationWord.replaceWith(annotationWord.textContent);
+        }
+      });
+
     createdAnnotationTargets.forEach(annotationTarget => {
       if (!annotationTarget.isConnected) return;
 
@@ -1009,6 +1240,11 @@ function showChoiceProve(question, state, proveArea) {
 }
 
 function showFindAndClickProve(question, state, proveArea) {
+  if (activeFeedbackCleanup) {
+    activeFeedbackCleanup();
+    activeFeedbackCleanup = null;
+  }
+
   restoreBasePassageHtml();
 
   let target = null;
@@ -1320,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (hasPassageOrQuestion) {
         // Show correct feedback visually but do not mark the state solved/correct
-        applyCorrectAnswerFeedback(question, true);
+        applyCorrectAnswerFeedback(question, false);
       }
       // If the current question/section is "choices" only, do nothing
         menuExpander.textContent = "≡";
@@ -1348,5 +1584,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initializeLanguageDropdown();
 });
+
+// debug function: skip to question number
+window.goToQuestion = function(questionNumber) {
+  const targetIndex = Number(questionNumber) - 1;
+
+  if (
+    !Number.isInteger(targetIndex) ||
+    targetIndex < 0 ||
+    targetIndex >= questions.length
+  ) {
+    console.warn(
+      `Question must be between 1 and ${questions.length}.`
+    );
+    return;
+  }
+
+  screenMode = 'questions';
+  displayQuestion(targetIndex);
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'auto'
+  });
+};
 
 loadCueContent();

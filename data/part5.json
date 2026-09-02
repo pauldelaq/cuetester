@@ -392,6 +392,277 @@
         }
         }
     ]
+    },
+    {
+  "questions": [
+    {
+      "question": "The regional manager ------- three new branch offices since taking over the position last year.",
+
+      "choices": {
+        "A": {
+          "text": "opens",
+          "feedbackType": "annotation",
+          "targets": [
+            { "source": "question", "text": "since", "annotation": "starting point" },
+            { "source": "choice", "choice": "A", "text": "opens", "annotation": "present" }
+          ]
+        },
+
+        "B": {
+          "text": "opened",
+          "feedbackType": "annotation",
+          "targets": [
+            { "source": "question", "text": "since", "annotation": "past → now" },
+            { "source": "choice", "choice": "B", "text": "opened", "annotation": "past" }
+          ]
+        },
+
+        "C": {
+          "text": "has opened",
+          "feedbackType": "annotation",
+          "targets": [
+            { "source": "question", "text": "since", "annotation": "past → now" },
+            { "source": "question", "text": "last year", "annotation": "starting point" },
+            { "source": "choice", "choice": "C", "text": "has opened", "annotation": "present perfect" }
+          ]
+        },
+
+        "D": {
+          "text": "will open",
+          "feedbackType": "annotation",
+          "targets": [
+            { "source": "question", "text": "last year", "annotation": "past" },
+            { "source": "choice", "choice": "D", "text": "will open", "annotation": "future" }
+          ]
+        }
+      },
+
+      "correct": "C",
+
+      "prove": {
+        "type": "find-and-click",
+        "source": "question",
+        "prompt": "Which word shows that the time period began in the past? Find it and click.",
+        "correct": "since"
+      }
+    }
+  ]
+},
+    {
+      "questions": [
+        {
+          "question": "The successful ------- of the new payment system has significantly reduced processing times.",
+
+          "choices": {
+            "A": {
+              "text": "implement",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "successful", "annotation": "adj." },
+                { "source": "choice", "choice": "A", "text": "implement", "annotation": "v." }
+              ]
+            },
+
+            "B": {
+              "text": "implemented",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "successful", "annotation": "adj." },
+                { "source": "choice", "choice": "B", "text": "implemented", "annotation": "v./adj." }
+              ]
+            },
+
+            "C": {
+              "text": "implementation",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "successful", "annotation": "adj." },
+                { "source": "choice", "choice": "C", "text": "implementation", "annotation": "n." }
+              ]
+            },
+
+            "D": {
+              "text": "implementing",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "successful", "annotation": "adj." },
+                { "source": "choice", "choice": "D", "text": "implementing", "annotation": "v." }
+              ]
+            }
+          },
+
+          "correct": "C",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which part of speech should be used?",
+            "options": ["n.", "v.", "adj.", "adv."],
+            "correct": "n."
+          }
+        }
+      ]
+    },
+    {
+      "questions": [
+        {
+          "question": "The new inventory software is ------- effective at identifying shortages before they cause delays.",
+
+          "choices": {
+            "A": {
+              "text": "high",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "effective", "annotation": "adj." },
+                { "source": "choice", "choice": "A", "text": "high", "annotation": "adj." }
+              ]
+            },
+
+            "B": {
+              "text": "highly",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "effective", "annotation": "adj." },
+                { "source": "choice", "choice": "B", "text": "highly", "annotation": "adv." }
+              ]
+            },
+
+            "C": {
+              "text": "height",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "effective", "annotation": "adj." },
+                { "source": "choice", "choice": "C", "text": "height", "annotation": "n." }
+              ]
+            },
+
+            "D": {
+              "text": "higher",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "effective", "annotation": "adj." },
+                { "source": "choice", "choice": "D", "text": "higher", "annotation": "comparative adj." }
+              ]
+            }
+          },
+
+          "correct": "B",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which part of speech is normally used to modify an adjective?",
+            "options": ["n.", "v.", "adj.", "adv."],
+            "correct": "adv."
+          }
+        }
+      ]
+    },
+    {
+      "questions": [
+        {
+          "question": "------- the shipment arrived later than expected, all customer orders were delivered by Friday.",
+
+          "choices": {
+            "A": {
+              "text": "Despite",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "the shipment arrived later than expected", "annotation": "complete clause" },
+                { "source": "choice", "choice": "A", "text": "Despite", "annotation": "+ noun phrase" }
+              ]
+            },
+
+            "B": {
+              "text": "Although",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "the shipment arrived later than expected", "annotation": "complete clause" },
+                { "source": "choice", "choice": "B", "text": "Although", "annotation": "+ clause" }
+              ]
+            },
+
+            "C": {
+              "text": "Because of",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "the shipment arrived later than expected", "annotation": "complete clause" },
+                { "source": "choice", "choice": "C", "text": "Because of", "annotation": "+ noun phrase" }
+              ]
+            },
+
+            "D": {
+              "text": "During",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "the shipment arrived later than expected", "annotation": "complete clause" },
+                { "source": "choice", "choice": "D", "text": "During", "annotation": "+ noun phrase" }
+              ]
+            }
+          },
+
+          "correct": "B",
+
+          "prove": {
+            "type": "find-and-click",
+            "source": "question",
+            "prompt": "Which word shows that this is a complete clause? Find it and click.",
+            "correct": "arrived"
+          }
+        }
+      ]
+    },
+    {
+      "questions": [
+        {
+          "question": "All contractors must comply ------- the building's safety regulations while working on site.",
+
+          "choices": {
+            "A": {
+              "text": "at",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "question", "text": "comply" },
+                { "source": "choice", "choice": "A", "text": "at" }
+              ]
+            },
+
+            "B": {
+              "text": "for",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "question", "text": "comply" },
+                { "source": "choice", "choice": "B", "text": "for" }
+              ]
+            },
+
+            "C": {
+              "text": "with",
+              "feedbackType": "annotation",
+              "targets": [
+                { "source": "question", "text": "comply", "annotation": "" },
+                { "source": "choice", "choice": "C", "text": "with", "annotation": "comply with" }
+              ]
+            },
+
+            "D": {
+              "text": "to",
+              "feedbackType": "highlight",
+              "targets": [
+                { "source": "question", "text": "comply" },
+                { "source": "choice", "choice": "D", "text": "to" }
+              ]
+            }
+          },
+
+          "correct": "C",
+
+          "prove": {
+            "type": "choice",
+            "prompt": "Which phrase is closest in meaning to \"comply with\"?",
+            "options": ["object to", "follow", "change", "investigate"],
+            "correct": "follow"
+          }
+        }
+      ]
     }
   ]
 }

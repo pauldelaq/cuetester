@@ -107,10 +107,10 @@
 
 .nav-arrow {
   position: fixed;
-  bottom: 1em;
+  bottom: 1.5em;
 
-  width: 60px;
-  height: 60px;
+  width: 42px;
+  height: 42px;
   padding: 0;
 
   border-radius: 50%;
@@ -205,9 +205,13 @@
   left: 0%;
   bottom: 0;
   line-height: 1;
-  white-space: nowrap;
-  font-weight: bold;
 
+  white-space: normal;
+  width: max-content;
+  max-width: min(20em, calc(100vw - 4em));
+  overflow-wrap: break-word;
+
+  font-weight: bold;
   animation: annotation-label-in 0.5s ease-out;
 }
 
@@ -225,6 +229,47 @@
 
 .annotation-word {
   background-color: yellow;
+}
+
+.annotation-footnote-target {
+  display: inline;
+}
+
+.annotation-footnotes {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 1em;
+  line-height: 1.4;
+}
+
+.annotation-footnote {
+  display: block;
+  margin-top: 0.25em;
+  font-weight: bold;
+  background: yellow;
+}
+
+.annotation-footnote .annotation-footnote-marker {
+  vertical-align: super;
+  margin-right: 0.2em;
+}
+
+.annotation-footnote-ref {
+  font-weight: bold;
+}
+
+.choice-annotation-target {
+  background: yellow;
+}
+
+.choice-annotation {
+  display: block;
+  width: 100%;
+  margin-top: 0.1em;
+  font-weight: bold;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .prove-area {
@@ -397,11 +442,15 @@
   border: none;
   border-radius: 50%;
 
-  font-size: 28px;
-  line-height: 1;
+  font-size: 40px;
+  line-height: 0.5;
   cursor: pointer;
 
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+  background: var(--accent);
+  color: white;
+  display: flex;
+  justify-content: center;
 
   animation: scrollCueBounce 1.2s ease-in-out infinite;
 }

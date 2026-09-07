@@ -468,3 +468,16 @@
     transform: translateX(-50%) translateY(5px);
   }
 }
+
+.audio-image img {
+  width: stretch;
+}
+
+.audio-question:not(.transcript-visible) .question-text,
+.audio-question:not(.transcript-visible) .choice-text {
+  display: none;
+}
+
+.audio-playing {
+  background: rgba(255, 220, 0, 0.25);
+}

@@ -10,6 +10,10 @@ let activeTranslationCleanup = null;
 let translationLanguage = 'zh-TW';
 
 let scrollCue = null;
+let activeAudio = null;
+let audioStartTimeout = null;
+let audioSegmentEnd = null;
+let audioHighlightEnabled = false;
 
 function ensureScrollCue() {
   if (scrollCue) return scrollCue;
@@ -946,6 +950,121 @@ function applyFocusFeedback(targets) {
   };
 }
 
+function stopAudioQuestion() {
+  if (audioStartTimeout) {
+    clearTimeout(audioStartTimeout);
+    audioStartTimeout = null;
+  }
+
+  audioSegmentEnd = null;
+  audioHighlightEnabled = false;
+
+  if (activeAudio) {
+    activeAudio.pause();
+    activeAudio.currentTime = 0;
+    activeAudio = null;
+  }
+}
+
+function playAudioSegment(start, end) {
+  if (!activeAudio) return;
+
+  audioSegmentEnd = end;
+  audioHighlightEnabled = false;
+
+  document.querySelectorAll('.audio-playing').forEach(element => {
+    element.classList.remove('audio-playing');
+  });
+
+  activeAudio.currentTime = start;
+
+  activeAudio.play().catch(error => {
+    console.warn('Audio segment playback failed:', error);
+  });
+}
+
+function stopAudioSegmentAtEnd() {
+  if (!activeAudio || audioSegmentEnd === null) return;
+
+  if (activeAudio.currentTime >= audioSegmentEnd) {
+    activeAudio.pause();
+    audioSegmentEnd = null;
+  }
+}
+
+function startAudioQuestion(question, state) {
+  if (!question.audioSection?.audio) return;
+
+  stopAudioQuestion();
+
+  activeAudio = new Audio(question.audioSection.audio);
+  activeAudio.addEventListener('timeupdate', () => {
+    stopAudioSegmentAtEnd();
+    updateAudioHighlight(question);
+  });
+
+  activeAudio.addEventListener('ended', () => {
+    audioHighlightEnabled = false;
+
+    document.querySelectorAll('.audio-playing').forEach(element => {
+      element.classList.remove('audio-playing');
+    });
+  });
+
+  if (state.audioPlayed) return;
+
+  audioStartTimeout = setTimeout(() => {
+    audioStartTimeout = null;
+
+  audioSegmentEnd = null;
+  audioHighlightEnabled = true;
+
+  activeAudio.play()
+      .then(() => {
+        state.audioPlayed = true;
+      })
+      .catch(error => {
+        console.warn('Audio playback was blocked:', error);
+      });
+  }, 1000);
+}
+
+function updateAudioHighlight(question) {
+  if (!activeAudio) return;
+  if (!audioHighlightEnabled) return;
+
+  const currentTime = activeAudio.currentTime;
+
+  document.querySelectorAll('.audio-playing').forEach(element => {
+    element.classList.remove('audio-playing');
+  });
+
+  if (
+    question.questionTimestamp &&
+    currentTime >= question.questionTimestamp.start &&
+    currentTime < question.questionTimestamp.end
+  ) {
+    document
+      .querySelector('.question-text')
+      ?.classList.add('audio-playing');
+
+    return;
+  }
+
+  Object.entries(question.choices).forEach(([letter, choice]) => {
+    if (!choice.timestamp) return;
+
+    if (
+      currentTime >= choice.timestamp.start &&
+      currentTime < choice.timestamp.end
+    ) {
+      document
+        .querySelector(`.choice[data-choice="${letter}"]`)
+        ?.classList.add('audio-playing');
+    }
+  });
+}
+
 async function loadCueContent() {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -974,7 +1093,8 @@ async function loadCueContent() {
       proveSolved: false,
       solved: false,
       attemptedChoices: [],
-      activeChoice: null
+      activeChoice: null,
+      audioPlayed: false
     }));
 
   if (cueData.instructions) {
@@ -1347,11 +1467,19 @@ function displayQuestion(index) {
   const cueContent = document.getElementById('cue-content');
   const question = questions[index];
   const state = questionStates[index];
+  const isAudioQuestion = Boolean(question.audioSection);
+  stopAudioQuestion();
 
   cueContent.innerHTML = `
+      ${isAudioQuestion && question.audioSection.image
+      ? `<div class="audio-image">
+          <img src="${question.audioSection.image}" alt="">
+        </div>`
+      : ''
+    }
     ${question.passage ? `<div class="passage">${question.passage}</div>` : ''}
 
-      <table class="question-and-choices ${question.question ? '' : 'no-question-text'}">
+      <table class="question-and-choices ${question.question ? '' : 'no-question-text'} ${isAudioQuestion ? 'audio-question' : ''} ${isAudioQuestion && state.activeChoice ? 'transcript-visible' : ''}">
         <tr>
           <td class="left-cell">
             <span class="question-number">${index + 1}. </span>
@@ -1390,6 +1518,30 @@ function displayQuestion(index) {
 
   refreshScrollCue();
 
+  if (isAudioQuestion) {
+    startAudioQuestion(question, state);
+
+    const questionText = document.querySelector('.question-text');
+
+    questionText?.addEventListener('click', event => {
+      const audioQuestion = document.querySelector('.audio-question');
+
+      if (
+        !audioQuestion?.classList.contains('transcript-visible') ||
+        !question.questionTimestamp
+      ) {
+        return;
+      }
+
+      event.stopPropagation();
+
+      playAudioSegment(
+        question.questionTimestamp.start,
+        question.questionTimestamp.end
+      );
+    });
+  }
+
   document.querySelectorAll('.choice').forEach(button => {
     button.addEventListener('click', () => {
 
@@ -1401,6 +1553,23 @@ function displayQuestion(index) {
 
       const selectedChoice = button.dataset.choice;
       state.activeChoice = selectedChoice;
+
+      if (isAudioQuestion) {
+        const timestamp = question.choices[selectedChoice]?.timestamp;
+
+        if (timestamp) {
+          playAudioSegment(
+            timestamp.start,
+            timestamp.end
+          );
+        }
+      }
+
+      if (isAudioQuestion) {
+        document
+          .querySelector('.audio-question')
+          ?.classList.add('transcript-visible');
+      }
 
       const choice = question.choices[selectedChoice];
       const feedbackArea = document.querySelector('.feedback-area');

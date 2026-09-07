@@ -333,6 +333,10 @@ function applyFeedback(choice, question) {
       activeFeedbackCleanup = applyFocusFeedback(choice.targets);
       break;
 
+    case 'image-box':
+      activeFeedbackCleanup = applyImageBoxFeedback(choice.targets);
+      break;
+
     default:
       console.warn(`Unknown feedback type: ${choice.feedbackType}`);
   }
@@ -950,6 +954,39 @@ function applyFocusFeedback(targets) {
   };
 }
 
+function applyImageBoxFeedback(targets) {
+  const imageContainer = document.querySelector('.audio-image');
+
+  if (!imageContainer) {
+    return () => {};
+  }
+
+  const createdBoxes = [];
+
+  targets.forEach(target => {
+    const box = document.createElement('div');
+    box.className = 'feedback-image-box';
+
+    box.style.left = `${target.left}%`;
+    box.style.top = `${target.top}%`;
+    box.style.width = `${target.width}%`;
+    box.style.height = `${target.height}%`;
+
+    imageContainer.appendChild(box);
+    createdBoxes.push(box);
+  });
+
+  return () => {
+    createdBoxes.forEach(box => {
+      if (box.isConnected) {
+        box.remove();
+      }
+    });
+  };
+}
+
+// audio-related functions
+
 function stopAudioQuestion() {
   if (audioStartTimeout) {
     clearTimeout(audioStartTimeout);
@@ -1300,6 +1337,10 @@ function showProveActivity(question, state) {
       showFindAndClickProve(question, state, proveArea);
       break;
 
+    case 'image-click':
+      showImageClickProve(question, state, proveArea);
+      break;
+
     default:
       console.warn(`Unknown prove type: ${question.prove.type}`);
   }
@@ -1457,6 +1498,65 @@ function showFindAndClickProve(question, state, proveArea) {
       proveCheckbox.checked = true;
     }
   });
+}
+
+function showImageClickProve(question, state, proveArea) {
+  if (activeFeedbackCleanup) {
+    activeFeedbackCleanup();
+    activeFeedbackCleanup = null;
+  }
+
+  const imageContainer = document.querySelector('.audio-image');
+
+  if (!imageContainer) return;
+
+  const correctChoice = question.choices[question.correct];
+
+  if (
+    correctChoice.feedbackType !== 'image-box' ||
+    !correctChoice.targets?.length
+  ) {
+    console.warn(
+      'image-click prove requires image-box feedback on the correct choice.'
+    );
+    return;
+  }
+
+  const target = correctChoice.targets[0];
+
+  const button = document.createElement('button');
+
+  button.type = 'button';
+  button.className = 'prove-image-target';
+
+  button.style.left = `${target.left}%`;
+  button.style.top = `${target.top}%`;
+  button.style.width = `${target.width}%`;
+  button.style.height = `${target.height}%`;
+
+  button.addEventListener('click', () => {
+    if (state.proveSolved) return;
+
+    state.proveSolved = true;
+    state.solved = true;
+
+    button.remove();
+
+    applyCorrectAnswerFeedback(question, true);
+    updateChoiceStates(state, question, question.correct);
+    updateNavigation(true);
+
+    refreshScrollCue();
+
+    const proveCheckbox =
+      proveArea.querySelector('#prove-status');
+
+    if (proveCheckbox) {
+      proveCheckbox.checked = true;
+    }
+  });
+
+  imageContainer.appendChild(button);
 }
 
 function displayQuestion(index) {

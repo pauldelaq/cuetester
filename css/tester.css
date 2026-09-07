@@ -469,8 +469,42 @@
   }
 }
 
+.audio-image {
+  position: relative;
+  width: min(800px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+}
+
 .audio-image img {
-  width: stretch;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.feedback-image-box {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+  background: #4a91e28f;
+  border: 3px dashed var(--accent);
+}
+
+.prove-image-target {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.prove-image-target {
+  position: absolute;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
 }
 
 .audio-question:not(.transcript-visible) .question-text,
@@ -479,5 +513,5 @@
 }
 
 .audio-playing {
-  background: rgba(255, 220, 0, 0.25);
+  background: #4a91e2d3;
 }

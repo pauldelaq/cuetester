@@ -1006,18 +1006,39 @@ function stopAudioQuestion() {
 function playAudioSegment(start, end) {
   if (!activeAudio) return;
 
-  audioSegmentEnd = end;
   audioHighlightEnabled = false;
 
   document.querySelectorAll('.audio-playing').forEach(element => {
     element.classList.remove('audio-playing');
   });
 
-  activeAudio.currentTime = start;
+  // Stop current playback and disable segment-end checking
+  // while the browser seeks.
+  activeAudio.pause();
+  audioSegmentEnd = null;
 
-  activeAudio.play().catch(error => {
-    console.warn('Audio segment playback failed:', error);
-  });
+  const handleSeeked = () => {
+    activeAudio.removeEventListener('seeked', handleSeeked);
+
+    audioSegmentEnd = end;
+
+    console.log(
+      'Segment requested:',
+      start,
+      '→',
+      end,
+      '| actual seek position:',
+      activeAudio.currentTime
+    );
+
+    activeAudio.play().catch(error => {
+      console.warn('Audio segment playback failed:', error);
+    });
+  };
+
+  activeAudio.addEventListener('seeked', handleSeeked);
+
+  activeAudio.currentTime = start;
 }
 
 function stopAudioSegmentAtEnd() {

@@ -22,31 +22,46 @@
 
         "questionTimestamp": {
             "start": 0.00,
-            "end": 2.60
+            "end": 2.70
         },
 
         "choices": {
             "A": {
-            "text": "The staff are having a meeting.",
+            "text": "The employees are having a meeting.",
             "timestamp": {
-                "start": 2.60,
-                "end": 4.80
-            }
+                "start": 2.70,
+                "end": 5.10
+            },
+            "feedbackType": "annotation",
+              "targets": [
+                { "source": "choice", "choice": "A", "text": "The employees are having a meeting.", "annotation": "The employees are working individually." }
+              ]
             },
 
             "B": {
             "text": "The desktop is occupied with boxes.",
             "timestamp": {
-                "start": 4.80,
-                "end": 7.80
+                "start": 5.10,
+                "end": 7.90
             },
-            "feedbackType": "image-box",
-            "targets": [
+
+            "feedback": [
                 {
-                "left": 30,
-                "top": 75,
-                "width": 70,
-                "height": 23
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 30,
+                        "top": 75,
+                        "width": 70,
+                        "height": 23
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        { "source": "choice", "choice": "B", "text": "The desktop is occupied with boxes.", "annotation": "No boxes are on the desktop." }
+                    ]  
                 }
             ]
             },
@@ -54,16 +69,26 @@
             "C": {
             "text": "The man is writing in a folder.",
             "timestamp": {
-                "start": 7.80,
-                "end": 10.30
+                "start": 7.90,
+                "end": 10.40
             },
-            "feedbackType": "image-box",
-            "targets": [
+            "feedback": [
                 {
-                "left": 30,
-                "top": 40,
-                "width": 35,
-                "height": 45
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 30,
+                        "top": 40,
+                        "width": 35,
+                        "height": 45
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {"source": "choice", "choice": "C", "text": "The man is writing in a folder.", "annotation": "The man is using a computer."}
+                    ]
                 }
             ]
             },
@@ -71,7 +96,7 @@
             "D": {
             "text": "Several shelves are full of binders.",
             "timestamp": {
-                "start": 10.30,
+                "start": 10.40,
                 "end": 14.00
             },
             "feedbackType": "image-box",
@@ -116,7 +141,21 @@
             "timestamp": {
                 "start": 2.80,
                 "end": 6.32
-            }
+            },
+                        "feedback": [
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {"source": "choice",
+                        "choice": "A",
+                        "text": "recycling facility",
+                        "annotation": "This is a rental facility."
+                    }
+                    ]
+
+                }
+            ]
+
             },
 
             "B": {
@@ -124,7 +163,27 @@
             "timestamp": {
                 "start": 6.32,
                 "end": 9.22
-            }
+            },
+            "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 30,
+                        "top": 38,
+                        "width": 32,
+                        "height": 62
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {"source": "choice", "choice": "B", "text": "Several motorcycles line the street.", "annotation": "Several bicycles line the street."}
+                    ]
+                }
+            ]
+
             },
 
             "C": {
@@ -132,7 +191,20 @@
             "timestamp": {
                 "start": 9.22,
                 "end": 12.45
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 30,
+                        "top": 20,
+                        "width": 50,
+                        "height": 55
+                        }
+                    ]
+                }
+            ]
             },
 
             "D": {
@@ -140,11 +212,31 @@
             "timestamp": {
                 "start": 12.45,
                 "end": 16.00
-            }
+            },
+            "feedback": [
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {"source": "choice",
+                        "choice": "D",
+                        "text": "requesting a refund",
+                        "annotation": "The woman isn't speaking to anyone."
+                    }
+                    ]
+
+                }
+            ]
             }
         },
 
-        "correct": "C"
+        "correct": "C",
+        "prove": {
+            "type": "choice",
+            "prompt": "What type of rental service is she utilizing?",
+            "options": ["motorcycle", "bicycle", "car", "scooter"],
+            "correct": "bicycle"
+          }
+
         }
     ]
     },
@@ -169,7 +261,20 @@
             "timestamp": {
                 "start": 3.10,
                 "end": 6.20
-            }
+            },
+            "feedback": [
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "A",
+                    "text": "The students are rehearsing for a performance.",
+                    "annotation": "The chefs are preparing a dish."
+                        }
+                    ]
+                }
+            ]
             },
 
             "B": {
@@ -177,7 +282,20 @@
             "timestamp": {
                 "start": 6.20,
                 "end": 9.90
-            }
+            },
+            "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 27,
+                        "top": 70,
+                        "width": 46,
+                        "height": 28
+                        }
+                    ]
+                }
+            ]
             },
 
             "C": {
@@ -185,7 +303,21 @@
             "timestamp": {
                 "start": 9.90,
                 "end": 12.80
-            }
+            },
+            "feedback": [
+                {
+                    "type": "annotation",
+                    "targets":
+                    [
+                        {
+                    "source": "choice",
+                    "choice": "C",
+                    "text": "different stations",
+                    "annotation": "They work together at the same station."
+                }
+                    ]
+                }
+            ]
             },
 
             "D": {
@@ -193,11 +325,39 @@
             "timestamp": {
                 "start": 12.80,
                 "end": 16.90
-            }
+            },
+            "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 0,
+                        "top": 0,
+                        "width": 100,
+                        "height": 18
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "D",
+                    "text": "above the chefs",
+                    "annotation": "No utensils are placed above the chefs."
+                }
+            ]
+        }
+            ]
             }
         },
 
-        "correct": "B"
+        "correct": "B",
+        "prove": {
+        "type": "image-click",
+        "prompt": "Where is the dish? Find it in the picture and click."
+        }
         }
     ]
     },
@@ -222,7 +382,20 @@
             "timestamp": {
                 "start": 2.70,
                 "end": 5.10
-            }
+            },
+            "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 38,
+                        "top": 42,
+                        "width": 14,
+                        "height": 18
+                        }
+                    ]
+                }
+            ]
             },
 
             "B": {
@@ -230,7 +403,21 @@
             "timestamp": {
                 "start": 5.10,
                 "end": 7.70
-            }
+            },
+            "feedback":
+            [
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                            "source": "choice",
+                            "choice": "B",
+                            "text": "weaving through traffic",
+                            "annotation": "He is riding straight with no traffic around him."
+                        }
+                    ]
+                }
+            ]
             },
 
             "C": {
@@ -238,7 +425,31 @@
             "timestamp": {
                 "start": 7.90,
                 "end": 10.30
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 38,
+                        "top": 42,
+                        "width": 14,
+                        "height": 18
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "C",
+                    "text": "heading to the airport",
+                    "annotation": "He isn't carrying typical luggage that a tourist would take."
+                }
+            ]
+        }
+            ]
             },
 
             "D": {
@@ -246,11 +457,39 @@
             "timestamp": {
                 "start": 10.30,
                 "end": 13.70
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 43,
+                        "top": 55,
+                        "width": 21,
+                        "height": 27
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "D",
+                    "text": "using public transportation",
+                    "annotation": "A bicycle is not a form of public transportation."
+                }
+            ]
+        }
+            ]
             }
         },
 
-        "correct": "A"
+        "correct": "A",
+        "prove": {
+        "type": "image-click",
+        "prompt": "Which part of the picture shows that this man is a courier? Find it and click."
+        }
         }
     ]
     },
@@ -275,7 +514,22 @@
             "timestamp": {
                 "start": 2.80,
                 "end": 6.10
-            }
+            },
+            "feedback":
+            [
+                {
+                    "type": "annotation",
+                    "targets":
+                    [
+                        {
+                            "source": "choice",
+                            "choice": "A",
+                            "text": "The customers are purchasing tickets for an event.",
+                            "annotation": "These people have already paid to take the subway."
+                        }
+                    ]
+                }
+            ]
             },
 
             "B": {
@@ -283,7 +537,22 @@
             "timestamp": {
                 "start": 6.10,
                 "end": 9.40
-            }
+            },
+                        "feedback":
+            [
+                {
+                    "type": "annotation",
+                    "targets":
+                    [
+                        {
+                            "source": "choice",
+                            "choice": "B",
+                            "text": "The tourists are lining up to check in for a flight.",
+                            "annotation": "The location in the photo is not an airport."
+                        }
+                    ]
+                }
+            ]
             },
 
             "C": {
@@ -291,7 +560,20 @@
             "timestamp": {
                 "start": 9.40,
                 "end": 13.50
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 16,
+                        "top": 0,
+                        "width": 84,
+                        "height": 78
+                        }
+                    ]
+                }
+            ]
             },
 
             "D": {
@@ -299,11 +581,32 @@
             "timestamp": {
                 "start": 13.50,
                 "end": 17.00
-            }
+            },
+                "feedback":
+            [
+                {
+                    "type": "annotation",
+                    "targets":
+                    [
+                        {
+                            "source": "choice",
+                            "choice": "D",
+                            "text": "Security is closing off the area.",
+                            "annotation": "The area remains open to commuters."
+                        }
+                    ]
+                }
+            ]
             }
         },
 
-        "correct": "C"
+        "correct": "C",
+            "prove": {
+            "type": "choice",
+            "prompt": "What type of public transportation is most likely shown in the photo?",
+            "options": ["bus", "train", "ferry", "subway"],
+            "correct": "subway"
+          }
         }
     ]
     },
@@ -328,7 +631,31 @@
             "timestamp": {
                 "start": 2.70,
                 "end": 5.10
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 0,
+                        "top": 36,
+                        "width": 90,
+                        "height": 27
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "A",
+                    "text": "Cyclists are yielding",
+                    "annotation": "No cyclists are waiting at the crossing."
+                }
+            ]
+        }
+            ]
             },
 
             "B": {
@@ -336,7 +663,31 @@
             "timestamp": {
                 "start": 5.15,
                 "end": 7.80
-            }
+            },
+            "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 0,
+                        "top": 36,
+                        "width": 90,
+                        "height": 27
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "B",
+                    "text": "Emergency vehicles",
+                    "annotation": "No emergency vehicles are seen at the crossing."
+                }
+            ]
+        }
+    ]
             },
 
             "C": {
@@ -344,7 +695,31 @@
             "timestamp": {
                 "start": 8.00,
                 "end": 11.10
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 0,
+                        "top": 0,
+                        "width": 100,
+                        "height": 56
+                        }
+                    ]
+                },
+                {
+                    "type": "annotation",
+                    "targets": [
+                        {
+                    "source": "choice",
+                    "choice": "C",
+                    "text": "heavy traffic",
+                    "annotation": "Very little traffic is seen on the street."
+                }
+            ]
+        }
+    ]
             },
 
             "D": {
@@ -352,11 +727,28 @@
             "timestamp": {
                 "start": 11.10,
                 "end": 14.00
-            }
+            },
+                "feedback": [
+                {
+                    "type": "image-box",
+                    "targets": [
+                        {
+                        "left": 0,
+                        "top": 47,
+                        "width": 100,
+                        "height": 30
+                        }
+                    ]
+                }
+            ]
             }
         },
 
-        "correct": "D"
+        "correct": "D",
+        "prove": {
+        "type": "image-click",
+        "prompt": "Where are the pedestrians? Find them in the photo and click."
+        }
         }
     ]
     }

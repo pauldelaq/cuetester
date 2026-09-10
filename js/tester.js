@@ -320,26 +320,49 @@ function applyFeedback(choice, question) {
 
   restoreBasePassageHtml();
 
-  switch (choice.feedbackType) {
-    case 'highlight':
-      activeFeedbackCleanup = applyHighlightFeedback(choice.targets);
-      break;
+  const feedbackConfigs = choice.feedback
+    ? choice.feedback
+    : [
+        {
+          type: choice.feedbackType,
+          targets: choice.targets
+        }
+      ];
 
-    case 'annotation':
-      activeFeedbackCleanup = applyAnnotationFeedback(choice.targets);
-      break;
+  const cleanupFunctions = [];
 
-    case 'focus':
-      activeFeedbackCleanup = applyFocusFeedback(choice.targets);
-      break;
+  feedbackConfigs.forEach(config => {
+    let cleanup = null;
 
-    case 'image-box':
-      activeFeedbackCleanup = applyImageBoxFeedback(choice.targets);
-      break;
+    switch (config.type) {
+      case 'highlight':
+        cleanup = applyHighlightFeedback(config.targets || []);
+        break;
 
-    default:
-      console.warn(`Unknown feedback type: ${choice.feedbackType}`);
-  }
+      case 'annotation':
+        cleanup = applyAnnotationFeedback(config.targets || []);
+        break;
+
+      case 'focus':
+        cleanup = applyFocusFeedback(config.targets || []);
+        break;
+
+      case 'image-box':
+        cleanup = applyImageBoxFeedback(config.targets || []);
+        break;
+
+      default:
+        console.warn(`Unknown feedback type: ${config.type}`);
+    }
+
+    if (cleanup) {
+      cleanupFunctions.push(cleanup);
+    }
+  });
+
+  activeFeedbackCleanup = () => {
+    cleanupFunctions.reverse().forEach(cleanup => cleanup());
+  };
 }
 
 /// answer feedback types
@@ -353,11 +376,23 @@ function applyCorrectAnswerFeedback(question, includeChoiceTargets = true) {
   }
 
   const filteredChoice = {
-    ...correctChoice,
-    targets: correctChoice.targets.filter(
-      target => target.source !== 'choice'
-    )
+    ...correctChoice
   };
+
+  if (correctChoice.feedback) {
+    filteredChoice.feedback = correctChoice.feedback
+      .map(config => ({
+        ...config,
+        targets: (config.targets || []).filter(
+          target => target.source !== 'choice'
+        )
+      }))
+      .filter(config => config.targets.length);
+  } else {
+    filteredChoice.targets = (correctChoice.targets || []).filter(
+      target => target.source !== 'choice'
+    );
+  }
 
   applyFeedback(filteredChoice, question);
 }
@@ -987,6 +1022,28 @@ function applyImageBoxFeedback(targets) {
 
 // audio-related functions
 
+function showAudioIndicator() {
+  document
+    .getElementById('position-indicator')
+    ?.classList.add('position-indicator-faded');
+
+  const icon = document.getElementById('audio-playing-icon');
+
+  icon?.classList.add('audio-icon-visible');
+  icon?.classList.add('audio-pulse');
+}
+
+function hideAudioIndicator() {
+  document
+    .getElementById('position-indicator')
+    ?.classList.remove('position-indicator-faded');
+
+  const icon = document.getElementById('audio-playing-icon');
+
+  icon?.classList.remove('audio-icon-visible');
+  icon?.classList.remove('audio-pulse');
+}
+
 function stopAudioQuestion() {
   if (audioStartTimeout) {
     clearTimeout(audioStartTimeout);
@@ -995,6 +1052,7 @@ function stopAudioQuestion() {
 
   audioSegmentEnd = null;
   audioHighlightEnabled = false;
+  hideAudioIndicator();
 
   if (activeAudio) {
     activeAudio.pause();
@@ -1031,9 +1089,14 @@ function playAudioSegment(start, end) {
       activeAudio.currentTime
     );
 
-    activeAudio.play().catch(error => {
-      console.warn('Audio segment playback failed:', error);
-    });
+    activeAudio.play()
+      .then(() => {
+        showAudioIndicator();
+      })
+      .catch(error => {
+        hideAudioIndicator();
+        console.warn('Audio segment playback failed:', error);
+      });
   };
 
   activeAudio.addEventListener('seeked', handleSeeked);
@@ -1047,6 +1110,7 @@ function stopAudioSegmentAtEnd() {
   if (activeAudio.currentTime >= audioSegmentEnd) {
     activeAudio.pause();
     audioSegmentEnd = null;
+    hideAudioIndicator();
   }
 }
 
@@ -1063,6 +1127,7 @@ function startAudioQuestion(question, state) {
 
   activeAudio.addEventListener('ended', () => {
     audioHighlightEnabled = false;
+    hideAudioIndicator();
 
     document.querySelectorAll('.audio-playing').forEach(element => {
       element.classList.remove('audio-playing');
@@ -1078,12 +1143,14 @@ function startAudioQuestion(question, state) {
   audioHighlightEnabled = true;
 
   activeAudio.play()
-      .then(() => {
-        state.audioPlayed = true;
-      })
-      .catch(error => {
-        console.warn('Audio playback was blocked:', error);
-      });
+    .then(() => {
+      state.audioPlayed = true;
+      showAudioIndicator();
+    })
+    .catch(error => {
+      hideAudioIndicator();
+      console.warn('Audio playback was blocked:', error);
+    });
   }, 1000);
 }
 
@@ -1533,17 +1600,30 @@ function showImageClickProve(question, state, proveArea) {
 
   const correctChoice = question.choices[question.correct];
 
-  if (
-    correctChoice.feedbackType !== 'image-box' ||
-    !correctChoice.targets?.length
-  ) {
+  let imageBoxTargets = null;
+
+  // New multi-feedback format
+  if (correctChoice.feedback) {
+    const imageBoxFeedback = correctChoice.feedback.find(
+      feedback => feedback.type === 'image-box'
+    );
+
+    imageBoxTargets = imageBoxFeedback?.targets;
+  }
+
+  // Old single-feedback format
+  if (!imageBoxTargets && correctChoice.feedbackType === 'image-box') {
+    imageBoxTargets = correctChoice.targets;
+  }
+
+  if (!imageBoxTargets?.length) {
     console.warn(
       'image-click prove requires image-box feedback on the correct choice.'
     );
     return;
   }
 
-  const target = correctChoice.targets[0];
+  const target = imageBoxTargets[0];
 
   const button = document.createElement('button');
 

@@ -14,7 +14,7 @@
   font: inherit;
   text-align: left;
   cursor: pointer;
-  padding: 0.5em 0 0.5em 0.5em;
+  padding: 0.5em;
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
@@ -514,4 +514,52 @@
 
 .audio-playing {
   background: #4a91e2d3;
+}
+
+.audio-playing-icon.audio-pulse {
+  animation: audioPulse 1s ease-in-out infinite;
+}
+
+@keyframes audioPulse {
+  0%, 100% {
+    filter: brightness(1.5);
+  }
+
+  50% {
+    filter: brightness(1.0);
+  }
+}
+
+#position-indicator {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+#position-indicator.position-indicator-faded {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.audio-playing-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.audio-playing-icon.audio-icon-visible {
+  opacity: 1;
+}
+
+.header-status-slot {
+  display: grid;
+  place-items: center;
+}
+
+.header-status-slot #position-indicator,
+.header-status-slot .audio-playing-icon {
+  grid-area: 1 / 1;
 }
